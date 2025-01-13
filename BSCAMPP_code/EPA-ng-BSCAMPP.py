@@ -353,7 +353,7 @@ def parseArgs():
                         required=False, default=5)
     
     parser.add_argument("-s", "--similarityflag", type=str2bool,
-                        help="boolean, False if maximizing sequence similarity instead of simple Hamming distance (ignoring gap sites in the query)",
+                        help="boolean, True if maximizing sequence similarity instead of simple Hamming distance (ignoring gap sites in the query)",
                         required=False, default=True)
     
     parser.add_argument("-n","--tmpfilenbr", type=int,
