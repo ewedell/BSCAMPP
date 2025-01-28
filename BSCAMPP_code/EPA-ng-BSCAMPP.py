@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 '''
 This version uses a new technique for voting and ensuring trees contain all of the query sequences votes!
 '''
@@ -16,6 +18,8 @@ import threading
 import itertools
 from collections import Counter
 
+__root = os.path.dirname(os.path.realpath(__file__))
+
 def main(args):
     tree_path = args.tree
     output = args.outdir
@@ -29,6 +33,14 @@ def main(args):
     model = args.model
     info = args.info
     nbr_closest = args.votes
+    num_threads = args.threads
+
+    # choose the placement method
+    placement_method = args.placement_method
+
+    # filter-min and filter-max
+    filter_min, filter_max = args.filter_min, args.filter_max
+    filter_acc_lwr = args.filter_acc_lwr
 
     # output path, ref, query, backbone tree, info
     t0 = time.perf_counter()
@@ -36,10 +48,20 @@ def main(args):
     tree.resolve_polytomies()
 
     leaf_dict = tree.label_to_node(selection='leaves')
+    # clean the leaf keys so that ' or " are not present
+    ori_keys = list(leaf_dict.keys())
+    for key in ori_keys:
+        _node = leaf_dict[key]
+        new_key = key.replace('\'', '')
+        new_key = new_key.replace('\"', '')
+        leaf_dict.pop(key)
+        leaf_dict[new_key] = _node
+    #print(len(leaf_dict), ori_keys, leaf_dict)
+    
     print ('{} seconds loading tree'.format(time.perf_counter() - t0))
 
     try:
-        os.mkdir("tmp{}".format(run))
+        os.mkdir("{}/tmp{}".format(output, run))
     except OSError as error:
     	pass
     try:
@@ -53,11 +75,13 @@ def main(args):
     else:
         aln_dict = utils.read_data(aln)
         ref_dict, q_dict = utils.seperate(aln_dict, leaf_dict)
+        #print(len(ref_dict), len(q_dict))
+        #exit()
 
-        q_aln = "tmp{}/".format(run) + "qaln.fa"
+        q_aln = "{}/tmp{}/".format(output, run) + "qaln.fa"
         write_fasta(q_aln, q_dict)
 
-        aln = "tmp{}/".format(run) + "aln.fa"
+        aln = "{}/tmp{}/".format(output, run) + "aln.fa"
         write_fasta(aln, ref_dict)
 
     print ('{} seconds loading alignment'.format(time.perf_counter() - t0))
@@ -65,15 +89,15 @@ def main(args):
     query_votes_dict = dict()
     query_top_vote_dict = dict()
 
-    tmp_output = "tmp{}/".format(run) + "/closest.txt"
+    tmp_output = "{}/tmp{}/".format(output, run) + "/closest.txt"
 
     if similarity_flag == True:
-        os.system("./homology {} {} {} {} {} {}".format(aln, len(ref_dict), q_aln, len(q_dict), tmp_output, nbr_closest))
+        os.system("{}/homology {} {} {} {} {} {}".format(__root, aln, len(ref_dict), q_aln, len(q_dict), tmp_output, nbr_closest))
     else:
         if fragment_flag == False:
-            os.system("./hamming {} {} {} {} {} {}".format(aln, len(ref_dict), q_aln, len(q_dict), tmp_output, nbr_closest))
+            os.system("{}/hamming {} {} {} {} {} {}".format(__root, aln, len(ref_dict), q_aln, len(q_dict), tmp_output, nbr_closest))
         else: 
-            os.system("./fragment_hamming {} {} {} {} {} {}".format(aln, len(ref_dict), q_aln, len(q_dict), tmp_output, nbr_closest))
+            os.system("{}/fragment_hamming {} {} {} {} {} {}".format(__root, aln, len(ref_dict), q_aln, len(q_dict), tmp_output, nbr_closest))
 
     print ('{} seconds finding closest leaves'.format(time.perf_counter() - t0))
     
@@ -83,7 +107,7 @@ def main(args):
         line = line.strip()
         y = line.split(',')
         name = y.pop(0)
-
+        #print(y)
         for idx, taxon in enumerate(y):
 
             leaf, hamming = taxon.split(':')
@@ -126,6 +150,7 @@ def main(args):
     most_common_index = 0
     
     while len(query_votes_dict) > 0:
+        #print(lf_votes.most_common(most_common_index+1), most_common_index)
         (seed_label, node_votes) = lf_votes.most_common(most_common_index+1)[most_common_index]
         
         node_y = leaf_dict[seed_label]
@@ -154,7 +179,7 @@ def main(args):
                 leaf_queries[label].difference_update(leaf_queries_remove_set)
         queries_by_subtree.update(subtree_query_set)
 
-        if len(queries_by_subtree)> 0:
+        if len(queries_by_subtree) > 0:
             subtree_dict[subtree] = (seed_label, queries_by_subtree)
             subtree_leaf_label_dict[subtree] = subtree.label_to_node(selection='leaves')
 
@@ -168,8 +193,10 @@ def main(args):
             print ("queries left: {}".format(len(query_votes_dict)))
         if len(queries_by_subtree) == 0:
             most_common_index += 1
+            # 10.27.2023 - Chengze Shen
+            # >>> prevent going over the the total number of votes
         else:
-            most_common_index = 0;
+            most_common_index = 0
             
     jplace = dict()
     placements = []
@@ -205,7 +232,7 @@ def main(args):
     print ('{} seconds assigning subtrees'.format(time.perf_counter() - t0))
     final_subtree_count = 0
     
-    tmp_output = "tmp{}/query_subtree_dict".format(run)
+    tmp_output = "{}/tmp{}/query_subtree_dict".format(output, run)
     
     for subtree, query_list in new_subtree_dict.items():
 
@@ -214,11 +241,10 @@ def main(args):
 
         final_subtree_count += 1
         
-        tmp_tree = "tmp{}/tree".format(run)
-        tmp_aln = "tmp{}/aln".format(run) + ".fa"
-        tmp_qaln = "tmp{}/qaln".format(run) + "q.fa"
-        tmp_output = "tmp{}/".format(run) + "/epa_result.jplace"
-        tmp_dir = "tmp{}/".format(run)
+        tmp_tree = "{}/tmp{}/tree".format(output, run)
+        tmp_aln = "{}/tmp{}/aln".format(output, run) + ".fa"
+        tmp_qaln = "{}/tmp{}/qaln".format(output, run) + "q.fa"
+        tmp_dir = "{}/tmp{}/".format(output, run)
         try:
             os.mkdir(tmp_dir)
         except OSError as error:
@@ -241,7 +267,27 @@ def main(args):
 
         #print ('{} seconds writing subtree'.format(time.perf_counter() - t0))
 
-        os.system("./epa-ng -m {} -t {} -w {} -s {} -q {} --redo -T 16".format(info, tmp_tree, tmp_dir, tmp_aln, tmp_qaln))
+        # 1.27.2025 - Chengze Shen
+        # choose the placement method to run
+        tmp_output = os.path.join(tmp_dir, f"{placement_method}.jplace")
+        if placement_method == 'epa-ng':
+            cmd = "{}/epa-ng -m {} -t {} -w {} -s {} -q {} --redo -T {} --filter-min {} --filter-max {}".format(
+                __root, info, tmp_tree, tmp_dir, tmp_aln, tmp_qaln, num_threads,
+                filter_min, filter_max)
+            if filter_acc_lwr != None:
+                cmd += ' --filter-acc-lwr {}'.format(filter_acc_lwr)
+        elif placement_method == 'pplacer':
+            cmd_list = [f'{__root}/pplacer',
+                    '-m', model,
+                    #'-s', info,
+                    '-t', tmp_tree,
+                    '-r', tmp_aln, '-o', tmp_output,
+                    '-j', str(num_threads), tmp_qaln]
+            cmd = ' '.join(cmd_list)
+        else:
+            raise ValueError(
+                    f"Placement method {placement_method} not recognized")
+        os.system(cmd)
 
         #print ('{} seconds running epa-ng'.format(time.perf_counter() - t0))
 
@@ -302,7 +348,7 @@ def main(args):
             "likelihood", "pendant_length"]
 
 
-    output = open('{}/{}.jplace'.format(output,outFile), 'w')
+    output = open('{}/{}.jplace'.format(output, outFile), 'w')
     json.dump(jplace, output, sort_keys=True , indent=4)
     output.close()
     print ('{} seconds building jplace'.format(time.perf_counter() - t0))
@@ -367,7 +413,27 @@ def parseArgs():
     parser.add_argument("-f", "--fragmentflag", type=str2bool,
                         help="boolean, True if queries contain fragments",
                         required=False, default=True)
-                   
+    parser.add_argument('--threads', type=int,
+            help='number of threads for EPA-ng, default: all',
+            required=False, default=-1)
+    # 1.27.2025 - Chengze Shen
+    # added option to choose which placement method to use, EPA-ng or pplacer
+    parser.add_argument('--placement-method', type=str,
+            help='The base placement method to run, default: epa-ng',
+            choices=['epa-ng', 'pplacer'], default='epa-ng',
+            required=False)
+    
+    # 11.4.2023 - Chengze Shen
+    # added option to set minimum and maximum of reported placements by EPA-ng
+    parser.add_argument('--filter-min', type=int,
+            help='Minimum number of placements to report, default: 1',
+            required=False, default=1)
+    parser.add_argument('--filter-max', type=int,
+            help='Maximum number of placements to report, default: 7',
+            required=False, default=7)
+    parser.add_argument('--filter-acc-lwr', type=float,
+            help='Accumulated threshold to stop reporting placements, default: None',
+            required=False, default=None)
 
     parser.add_argument("-v", "--version", action="version", version="1.0.0", help="show the version number and exit")
                        
