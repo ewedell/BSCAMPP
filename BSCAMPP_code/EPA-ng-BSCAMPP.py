@@ -277,11 +277,15 @@ def main(args):
             if filter_acc_lwr != None:
                 cmd += ' --filter-acc-lwr {}'.format(filter_acc_lwr)
         elif placement_method == 'pplacer':
+            # build ref_pkg with info and tmp_tree and tmp_aln
+            ref_pkg = "tmp{}/{}{}.refpkg".format(run,name,outFile)
+            os.system("./taxit create -P {} -l {} --aln-fasta {} --tree-file {} --tree-stats {}".format(ref_pkg, name, tmp_ref_aln, tmp_tree, info))
+
             cmd_list = [f'{__root}/pplacer',
                     '-m', model,
                     #'-s', info,
-                    '-t', tmp_tree,
-                    '-r', tmp_aln, '-o', tmp_output,
+                    #'-t', tmp_tree,
+                    '-c', ref_pkg, '-o', tmp_output,
                     '-j', str(num_threads), tmp_qaln]
             cmd = ' '.join(cmd_list)
         else:
