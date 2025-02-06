@@ -1,0 +1,4 @@
+ConfigParser>=5.0.0
+numpy>=1.21.6
+treeswift>=1.1.45
+taxtastic>=0.9.3
