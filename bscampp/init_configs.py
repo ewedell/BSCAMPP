@@ -79,7 +79,7 @@ def init_config_file(homepath, rerun=False, prioritize_user_software=True):
     # prioritize user's software
     if prioritize_user_software:
         print('Detecting existing software from user\'s environment...')
-        softwares = ['pplacer', 'epa-ng']
+        softwares = ['pplacer', 'epa-ng', 'taxit']
         for software in softwares:
             sname = software.replace('-', '')
             software_path = shutil.which(software)

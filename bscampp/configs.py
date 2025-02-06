@@ -37,6 +37,7 @@ class Configs:
     # binaries
     pplacer_path = None
     epang_path = None
+    taxit_path = None
     hamming_distance_dir = None
 
     # placement settings
@@ -120,6 +121,14 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
     cparser.optionxform = str
     args = parser.parse_args(cmdline_args)
 
+    # Check if only updating config files, if so, re-initialize the 
+    # configuration file at ~/.bscampp/main.config and exit
+    #if args.command == 'update-configs':
+    #    _ = init_config_file(homepath, rerun=True)
+    #    _LOG.warning('Finished re-initializing the configuration file '
+    #            f'at {main_config_path}, exiting...')
+    #    exit(0)
+
     # first load arguments from main.configs
     main_args = Namespace()
     cmdline_main = _read_config_file(main_config_path,
@@ -128,7 +137,7 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
     # merge arguments, in the correct order so things are overridden correctly
     args = parser.parse_args(cmdline_main + cmdline_args,
             namespace=main_args)
-    
+
     # directly add all arguments that's defined in the Configs class
     for k in args.__dict__.keys():
         k_attr = getattr(args, k)
@@ -142,6 +151,10 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
     # create outdir
     if not os.path.isdir(Configs.outdir):
         os.makedirs(Configs.outdir)
+
+    # modify outname if it does not have a .jplace suffix
+    if Configs.outname.split('.')[-1].lower() != 'jplace':
+        Configs.outname += '.jplace'
 
     # modify num_cpus if it is the default value
     if Configs.num_cpus > 0:

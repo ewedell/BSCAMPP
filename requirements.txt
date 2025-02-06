@@ -1,3 +1,4 @@
 ConfigParser>=5.0.0
 numpy>=1.21.6
 treeswift>=1.1.45
+taxit>=0.10.0

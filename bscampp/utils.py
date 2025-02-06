@@ -35,6 +35,31 @@ BRACKET = {
 }
 
 
+def write_fasta(aln, aln_dict, aligned=True):
+    """ Write given dictionary as FASTA file out
+    
+    Parameters
+    ----------
+    aln : FASTA file path
+    aln_dict : MSA in the form of a dict
+    aligned : whether the sequences are aligned
+
+    Returns
+    -------
+    None
+
+    """
+
+    f = open(aln, 'w')
+    for label, seq in aln_dict.items():
+        if label != '':
+            f.write(f'>{label}\n')
+            if aligned:
+                f.write(f'{seq}\n')
+            else:
+                f.write(seq.replace('-', '') + '\n')
+    f.close()
+
 #separete the query and ref sequence from the alignment file
 
 def read_data(aln):

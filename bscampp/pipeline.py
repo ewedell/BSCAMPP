@@ -30,7 +30,7 @@ def bscampp_pipeline(*args, **kwargs):
             initargs=(parser, cmdline_args,))
 
     # (0) temporary files wrote to here
-    workdir = os.path.join(Configs.outdir, f'TEMP{Configs.tmpfilenbr}')
+    workdir = os.path.join(Configs.outdir, f'tmp{Configs.tmpfilenbr}')
     try:
         if not os.path.isdir(workdir):
             os.makedirs(workdir)
@@ -39,11 +39,24 @@ def bscampp_pipeline(*args, **kwargs):
 
     # (1) read in tree, alignment, and separate reference sequences from
     # query sequences
-    tree, aln_path, aln, qaln_path, qaln = readData(workdir)
+    tree, leaf_dict, aln_path, aln, qaln_path, qaln = readData(workdir)
 
     # (2) compute closest leaves for all query sequences
     query_votes_dict, query_top_vote_dict = getClosestLeaves(
             aln_path, qaln_path, aln, qaln, workdir)
+
+    # (3) first assign all queries to their closest-leaf subtrees,
+    # then do reassignment to minimize distance between each's top vote
+    # and the subtree's seed leaf
+    new_subtree_dict, placed_query_list = assignQueriesToSubtrees(
+            query_votes_dict, query_top_vote_dict, tree, leaf_dict)
+
+    # (4) perform placement for each subtree
+    output_jplace = placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict,
+            placed_query_list, aln, qaln, cmdline_args, workdir, pool, lock)
+
+    # (5) write the output jplace to local
+    writeOutputJplace(output_jplace)
 
     # shutdown pool
     _LOG.warning('Shutting down ProcessPoolExecutor...')
@@ -51,9 +64,9 @@ def bscampp_pipeline(*args, **kwargs):
     _LOG.warning('ProcessPoolExecutor shut down.')
     
     # clean up temp files if not keeping
-    #if not Configs.keeptemp:
-    #    _LOG.info('Removing temporary files...')
-    #    clean_temp_files()
+    if not Configs.keeptemp:
+        _LOG.info('Removing temporary files...')
+        clean_temp_files()
 
     # stop BSCAMPP 
     send = time.perf_counter()
@@ -61,7 +74,7 @@ def bscampp_pipeline(*args, **kwargs):
 
 def clean_temp_files():
     # all temporary files/directories to remove
-    temp_items = [f'TEMP{Configs.tmpfilenbr}']
+    temp_items = [f'tmp{Configs.tmpfilenbr}']
     for temp in temp_items:
         temp_path = os.path.join(Configs.outdir, temp)
         if os.path.isfile(temp_path):
@@ -70,7 +83,7 @@ def clean_temp_files():
             shutil.rmtree(temp_path)
         else:
             continue
-        _LOG.info(f'\tRemoved {temp}')
+        _LOG.info(f'- Removed {temp}')
 
 def parseArguments():
     global _root_dir, main_config_path
@@ -105,6 +118,18 @@ def _init_parser():
     parser.add_argument('-v', '--version', action='version',
             version="%(prog)s " + __version__)
     parser.groups = dict()
+    required = True
+
+    ## add a subcommand for updating configuration file without running
+    ## the BSCAMPP pipeline
+    #subparsers = parser.add_subparsers(dest='command',
+    #        help='Subcommands for BSCAMPP')
+    #update_parser = subparsers.add_parser('update-configs',
+    #        help='Update the configuration file without running BSCAMPP.')
+
+    ## try update args requirement if subcommand(s) are used
+    #if 'update-configs' in sys.argv:
+    #    required = False
 
     # basic group
     basic_group = parser.add_argument_group(
@@ -120,17 +145,17 @@ def _init_parser():
                   dest="info_path",
                   help=("Path to model parameters. E.g., .bestModel "
                   "from RAxML/RAxML-ng"),
-                  required=True, default=None)
+                  required=required, default=None)
     basic_group.add_argument("-t", "--tree", "--tree-path", type=str,
                   dest="tree_path",
                   help="Path to reference tree with estimated branch lengths",
-                  required=True, default=None)
+                  required=required, default=None)
     basic_group.add_argument("-a", "--alignment", "--aln-path", type=str,
                   dest="aln_path",
                   help=("Path for reference sequence alignment in "
                   "FASTA format. Optionally with query sequences. "
                   "Query alignment can be specified with --qaln-path"), 
-                  required=True, default=None)
+                  required=required, default=None)
     basic_group.add_argument("-q", "--qalignment", "--qaln-path", type=str,
                   dest="qaln_path",
                   help=("Optionally provide path to query sequence alignment "
@@ -165,7 +190,7 @@ def _init_parser():
                   help="Number of votes per query sequence. Default: 5",
                   required=False, default=5)
     advance_group.add_argument("-s", "--similarityflag", type=str2bool,
-                  help="boolean, True if maximizing sequence similarity "
+                  help="Boolean, True if maximizing sequence similarity "
                   "instead of simple Hamming distance (ignoring gap "
                   "sites in the query). Default: True",
                   required=False, default=True)
@@ -176,23 +201,15 @@ def _init_parser():
     parser.groups['misc_group'] = misc_group
 
     misc_group.add_argument("-n","--tmpfilenbr", type=int,
-                  help="temporary file indexing. Default: 0",
+                  help="Temporary file indexing. Default: 0",
                   required=False, default=0)
     misc_group.add_argument("-f", "--fragmentflag", type=str2bool,
                   help="If queries contains fragments. Default: True",
                   required=False, default=True)
-    #misc_group.add_argument('--filter-min', type=int,
-    #        help=('(EPA-ng setting) Minimum number of placements to report. '
-    #              'Default: 1'),
-    #        required=False, default=1)
-    #misc_group.add_argument('--filter-max', type=int,
-    #        help=('(EPA-ng setting) Maximum number of placements to report. '
-    #              'Default: 7'),
-    #        required=False, default=7)
-    #misc_group.add_argument('--filter-acc-lwr', type=float,
-    #        help=('(EPA-ng setting) Accumulated threshold to stop reporting '
-    #        'placements. Default: None'),
-    #        required=False, default=None)
+    misc_group.add_argument("--keeptemp", type=str2bool,
+                  help="Boolean, True to keep all temporary files. "
+                  "Default: False",
+                  required=False, default=False)
     return parser
 
 def str2bool(b):
