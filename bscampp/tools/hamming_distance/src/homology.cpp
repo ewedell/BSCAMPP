@@ -98,7 +98,7 @@ int main( int argc, char **argv ){
         count2++;
     }
 
-    std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
+    //std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
 
     std::ofstream outFile(argv[5]);
 

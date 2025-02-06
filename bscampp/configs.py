@@ -37,6 +37,7 @@ class Configs:
     # binaries
     pplacer_path = None
     epang_path = None
+    hamming_distance_dir = None
 
     # placement settings
     placement_method = 'epa-ng'
@@ -55,8 +56,7 @@ def set_valid_configuration(name, conf):
         _LOG.warning(
             "Looking for Namespace object from \'{}\' but find {}".format(
                 name, type(conf)))
-        log_exception(_LOG)
-        exit()
+        return
 
     # basic section defined in main.config
     if name == 'basic':
@@ -148,3 +148,9 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
         Configs.num_cpus = min(os.cpu_count(), Configs.num_cpus)
     else:
         Configs.num_cpus = os.cpu_count()
+
+    # sanity check for existence of base placement binary path
+    if Configs.placement_method == 'epa-ng':
+        assert os.path.exists(Configs.epang_path), 'epa-ng not detected!'
+    elif Configs.placement_method == 'pplacer':
+        assert os.path.exists(Configs.pplacer_path), 'pplacer not detected!'

@@ -17,7 +17,7 @@ int main( int argc, char **argv ){
         return -1;
     }
     std::string line, name, content;
-    std::cout << argv[4] << std::endl;
+    //std::cout << argv[4] << std::endl;
     std::string q_name_arr[std::stoi(argv[4])+3];
     std::string q_seq_arr[std::stoi(argv[4])+3];
     int count2 = 0;
@@ -65,14 +65,14 @@ int main( int argc, char **argv ){
         best_tree_index[c] = 0;
     }
 
-    std::cout << argv[2] << std::endl;
+    //std::cout << argv[2] << std::endl;
     int subtree_size = std::stoi(argv[2]);
     int nbr_subtrees = std::stoi(argv[6]);
     
-    std::cout << nbr_subtrees << std::endl;
+    //std::cout << nbr_subtrees << std::endl;
     
     
-    std::cout << "here!!" << std::endl;
+    //std::cout << "here!!" << std::endl;
     
     std::string subtree_path = argv[1];
     int count1 = 0;
@@ -85,7 +85,7 @@ int main( int argc, char **argv ){
         
         std::string subtree_full_path = subtree_path + std::to_string(subtree_idx);
         
-        std::cout << subtree_full_path << std::endl;
+        //std::cout << subtree_full_path << std::endl;
         
         std::ifstream input_q(subtree_full_path); 
 
@@ -119,7 +119,7 @@ int main( int argc, char **argv ){
                 }
             }
         }
-        std::cout << "finished all but last reference sequences" << std::endl;
+        //std::cout << "finished all but last reference sequences" << std::endl;
     
         if( !name.empty() ){ // Print out what we read from the last entry
             //std::cout << name << " : " << content << std::endl;
@@ -128,8 +128,8 @@ int main( int argc, char **argv ){
             seq_arr[count1] = content.c_str();
             count1++;
         }    
-        std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
-        std::cout << "finished reading reference sequences" << std::endl;
+        //std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
+        //std::cout << "finished reading reference sequences" << std::endl;
     
         // find n (size) closest reference sequences by Hamming distance to each query 
         // print this to outfile with the one query per line followed by the n closest
@@ -167,7 +167,7 @@ int main( int argc, char **argv ){
                 best_tree_index[c2] = subtree_idx;
             }
         }
-        std::cout << "finished hamming distance " << std::endl;
+        //std::cout << "finished hamming distance " << std::endl;
         
     }
     

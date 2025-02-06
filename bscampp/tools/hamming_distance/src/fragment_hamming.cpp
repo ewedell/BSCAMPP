@@ -16,7 +16,7 @@ int main( int argc, char **argv ){
         std::cerr << "Error opening '"<<argv[1]<<"'. Bailing out." << std::endl;
         return -1;
     }
-    std::cout << argv[2] << std::endl;
+    //std::cout << argv[2] << std::endl;
     std::string name_arr[std::stoi(argv[2])];
     std::string seq_arr[std::stoi(argv[2])];
     std::string line, name, content;

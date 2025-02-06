@@ -65,9 +65,9 @@ def init_config_file(homepath, rerun=False, prioritize_user_software=True):
 
     # default path to all potential binaries
     cparser.set('basic', 'pplacer_path',
-            os.path.join(tools_dir, 'pplacer', 'pplacer'))
+            os.path.join(tools_dir, 'pplacer'))
     cparser.set('basic', 'epang_path',
-            os.path.join(tools_dir, 'epa-ng', 'epa-ng'))
+            os.path.join(tools_dir, 'epa-ng'))
     cparser.set('basic', 'hamming_distance_dir',
             os.path.join(tools_dir, 'hamming_distance'))
     

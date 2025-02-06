@@ -17,7 +17,7 @@ int main( int argc, char **argv ){
         return -1;
     }
     std::string line, name, content;
-    std::cout << argv[4] << std::endl;
+    //std::cout << argv[4] << std::endl;
     std::string q_name_arr[std::stoi(argv[4])+3];
     std::string q_seq_arr[std::stoi(argv[4])+3];
     int count2 = 0;

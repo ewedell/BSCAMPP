@@ -54,6 +54,7 @@ def get_logger(name='bscampp', log_path=None, logging_level='info'):
             # use FileHandler for logging
             ch = logging.FileHandler(log_path, mode='a')
         ch.setLevel(level)
+        ch.setFormatter(logging_formatter)
         logger.addHandler(ch)
         __set_loggers.add(name)
     return logger
@@ -63,4 +64,5 @@ def log_exception(logger):
     import traceback, io
     s = io.StringIO()
     traceback.print_exc(None, s)
-    logger.debug(s.getvalue())
+    logger.error(s.getvalue())
+    exit(1)

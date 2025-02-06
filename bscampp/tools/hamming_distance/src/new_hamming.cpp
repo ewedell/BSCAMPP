@@ -14,7 +14,7 @@ int main( int argc, char **argv ){
         std::cerr << "Error opening '"<<argv[1]<<"'. Bailing out." << std::endl;
         return -1;
     }
-    std::cout << argv[2] << std::endl;
+    //std::cout << argv[2] << std::endl;
     std::string name_arr[std::stoi(argv[2])];
     std::string seq_arr[std::stoi(argv[2])];
     std::string line, name, content;
@@ -45,7 +45,7 @@ int main( int argc, char **argv ){
 
     }
     
-    std::cout << "here" << std::endl;
+    //std::cout << "here" << std::endl;
     
     if( !name.empty() ){ // Print out what we read from the last entry
         //std::cout << name << " : " << content << std::endl;        
@@ -60,7 +60,7 @@ int main( int argc, char **argv ){
         std::cerr << "Error opening '"<<argv[3]<<"'. Bailing out." << std::endl;
         return -1;
     }
-    std::cout << argv[4] << std::endl;
+    //std::cout << argv[4] << std::endl;
     std::string q_name_arr[std::stoi(argv[4])+3];
     std::string q_seq_arr[std::stoi(argv[4])+3];
     int count2 = 0;
@@ -98,7 +98,7 @@ int main( int argc, char **argv ){
         count2++;
     }
 
-    std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
+    //std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
 
     std::ofstream outFile(argv[5]);
 
