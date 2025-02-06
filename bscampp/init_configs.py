@@ -58,7 +58,36 @@ def init_config_file(homepath, rerun=False, prioritize_user_software=True):
 
     # check platform, e.g., macOS or linux, etc.
     platform_name = platform()
-    tools_dir = os.path.join(os.path.dirname(__file__), 'tools')
+    print(f'System is: {platform_name}')
 
-    # TODO
+    tools_dir = os.path.join(os.path.dirname(__file__), 'tools')
+    set_sections = ['basic']
+
+    # default path to all potential binaries
+    cparser.set('basic', 'pplacer_path',
+            os.path.join(tools_dir, 'pplacer', 'pplacer'))
+    cparser.set('basic', 'epang_path',
+            os.path.join(tools_dir, 'epa-ng', 'epa-ng'))
+    cparser.set('basic', 'hamming_distance_dir',
+            os.path.join(tools_dir, 'hamming_distance'))
+    
+    # macOS TODO: need to recompile the binaries 
+    if 'macos' in platform_name.lower():
+        cparser.set('basic', 'hamming_distance_dir',
+                os.path.join(tools_dir, 'macOS', 'hamming_distance'))
+    
+    # prioritize user's software
+    if prioritize_user_software:
+        print('Detecting existing software from user\'s environment...')
+        softwares = ['pplacer', 'epa-ng']
+        for software in softwares:
+            sname = software.replace('-', '')
+            software_path = shutil.which(software)
+            if software_path:
+                print('\t{}: {}'.format(software, software_path)) 
+                cparser.set('basic', f'{sname}_path', software_path)
+    with open(main_config_path, 'w') as f:
+        cparser.write(f)
+    print(f'\n(Done) main.config was written to: {main_config_path}') 
+    print(f'If you want to make changes, please directly edit {main_config_path}') 
     return _root_dir, main_config_path

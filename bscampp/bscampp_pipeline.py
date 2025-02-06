@@ -44,9 +44,19 @@ def bscampp_pipeline(*args, **kwargs):
     send = time.time()
     _LOG.info('BSCAMPP completed in {} seconds...'.format(send - s1))
 
-'''
-Parse arguments from commandline and config file
-'''
+def clean_temp_files():
+    # all temporary files/directories to remove
+    temp_items = ['TEMP']
+    for temp in temp_items:
+        temp_path = os.path.join(Configs.outdir, temp)
+        if os.path.isfile(temp_path):
+            os.remove(temp_path)
+        elif os.path.isdir(temp_path):
+            shutil.rmtree(temp_path)
+        else:
+            continue
+        _LOG.info(f'\tRemoved {temp}')
+
 def parseArguments():
     global _root_dir, main_config_path
     parser = _init_parser()
@@ -56,6 +66,7 @@ def parseArguments():
     buildConfigs(parser, cmdline_args)
     _LOG.info('BSCAMPP is running with: {}'.format(
         ' '.join(cmdline_args)))
+    getConfigs()
 
     return parser, cmdline_args
 
@@ -76,51 +87,85 @@ def _init_parser():
             epilog=example_usages,
             formatter_class=utils.SmartHelpFormatter,
             )
-    parser.add_argument("-i", "--info", type=str,
-                        help="Path to model parameters",
-                        required=True, default=None)
-    parser.add_argument("-t", "--tree", type=str,
-                        help="Path to reference tree with estimated branch lengths",
-                        required=True, default=None)
-    parser.add_argument("-d", "--outdir", type=str,
-                        help="Directory path for output",
-                        required=True, default=None)
-    parser.add_argument("-a", "--alignment", type=str,
-                        help="Path for query and reference sequence alignment "
-                        "in fasta format", required=True, default=None)
-    parser.add_argument("-o", "--output", type=str,
-                        help="Output file name",
-                        required=False, default="EPA-ng-BSCAMPP")
-    parser.add_argument("-m", "--model", type=str,
-                        help="Model used for edge distances",
-                        required=False, default="GTR")
-    parser.add_argument("-b", "--subtreesize", type=int,
-                        help="Integer size of the subtree",
-                        required=False, default=2000)
-    parser.add_argument("-V", "--votes", type=int,
-                        help="Integer number of votes per query sequence",
-                        required=False, default=5)
-    parser.add_argument("-s", "--similarityflag", type=str2bool,
-                        help="boolean, True if maximizing sequence similarity "
-                        "instead of simple Hamming distance (ignoring gap "
-                        "sites in the query)",
-                        required=False, default=True)
-    parser.add_argument("-n","--tmpfilenbr", type=int,
-                        help="tmp file number",
-                        required=False, default=0)
-    parser.add_argument("-q", "--qalignment", type=str,
-                        help="Path to query sequence alignment in fasta format (ref alignment separate)",
-                        required=False, default="")
-    parser.add_argument("-f", "--fragmentflag", type=str2bool,
-                        help="boolean, True if queries contain fragments",
-                        required=False, default=True)
-    parser.add_argument('--threads', type=int,
-            help='number of threads for EPA-ng, default: all',
-            required=False, default=-1)
-    parser.add_argument('--placement-method', type=str,
-            help='The base placement method to run, default: epa-ng',
-            choices=['epa-ng', 'pplacer'], default='epa-ng',
-            required=False)
+    parser.add_argument('-v', '--version', action='version',
+            version="%(prog)s " + __version__)
+    parser.groups = dict()
+
+    # basic group
+    basic_group = parser.add_argument_group(
+            "Basic parameters".upper(),
+            "These are the basic parameters for BSCAMPP.")
+    parser.groups['basic_group'] = basic_group
+
+    basic_group.add_argument('--placement-method', type=str,
+                  help='The base placement method to use. Default: epa-ng',
+                  choices=['epa-ng', 'pplacer'], default='epa-ng',
+                  required=False)
+    basic_group.add_argument("-i", "--info", "--info-path", type=str,
+                  dest="info_path",
+                  help=("Path to model parameters. E.g., .bestModel "
+                  "from RAxML/RAxML-ng"),
+                  required=True, default=None)
+    basic_group.add_argument("-t", "--tree", "--tree-path", type=str,
+                  dest="tree_path",
+                  help="Path to reference tree with estimated branch lengths",
+                  required=True, default=None)
+    basic_group.add_argument("-a", "--alignment", "--aln-path", type=str,
+                  dest="aln_path",
+                  help=("Path for reference sequence alignment in "
+                  "FASTA format. Optionally with query sequences. "
+                  "Query alignment can be specified with --qaln-path"), 
+                  required=True, default=None)
+    basic_group.add_argument("-q", "--qalignment", "--qaln-path", type=str,
+                  dest="qaln_path",
+                  help=("Optionally provide path to query sequence alignment "
+                  "in FASTA format. Default: None"),
+                  required=False, default=None)
+    basic_group.add_argument("-d", "--outdir", type=str,
+                  help="Directory path for output. Default: bscampp_output/",
+                  required=False, default="bscampp_output")
+    basic_group.add_argument("-o", "--output", type=str, dest="outname",
+                  help="Output file name. Default: bscampp_result.jplace",
+                  required=False, default="bscampp_result.jplace")
+    basic_group.add_argument("--threads", "--num-cpus", type=int,
+                  dest="num_cpus",
+                  help="Number of cores for parallelization, default: -1 (all)",
+                  required=False, default=-1)
+
+    # advanced parameter settings
+    advance_group = parser.add_argument_group(
+            "Advance parameters".upper(),
+            ("These parameters control how BSCAMPP is run. "
+             "The default values are set based on experiments."
+             ))
+    parser.groups['advance_group'] = advance_group
+
+    advance_group.add_argument("-m", "--model", type=str,
+                  help="Model used for edge distances. Default: GTR",
+                  required=False, default="GTR")
+    advance_group.add_argument("-b", "--subtreesize", type=int,
+                  help="Integer size of the subtree. Default: 2000",
+                  required=False, default=2000)
+    advance_group.add_argument("-V", "--votes", type=int,
+                  help="Number of votes per query sequence. Default: 5",
+                  required=False, default=5)
+    advance_group.add_argument("-s", "--similarityflag", type=str2bool,
+                  help="boolean, True if maximizing sequence similarity "
+                  "instead of simple Hamming distance (ignoring gap "
+                  "sites in the query). Default: True",
+                  required=False, default=True)
+    
+    # miscellaneous group
+    misc_group = parser.add_argument_group(
+            "Miscellaneous parameters".upper(),)
+    parser.groups['misc_group'] = misc_group
+
+    misc_group.add_argument("-n","--tmpfilenbr", type=int,
+                  help="temporary file indexing. Default: 0",
+                  required=False, default=0)
+    misc_group.add_argument("-f", "--fragmentflag", type=str2bool,
+                  help="If queries contains fragments. Default: True",
+                  required=False, default=True)
     return parser
 
 def str2bool(b):

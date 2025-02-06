@@ -6,7 +6,8 @@ model=data/aln_dna.fa.raxml.bestModel
 queryalnpath=data/query100.fa
 backbonealnpath=data/ref10000.fa
 backbonetreepath=data/ref10000.tre
-bin=../BSCAMPP_code/EPA-ng-BSCAMPP.py
+#bin=../BSCAMPP_code/EPA-ng-BSCAMPP.py
+bin=../run_bscampp.py
 
 outdir=bscampp_output
 if [ ! -d $outdir ]; then
