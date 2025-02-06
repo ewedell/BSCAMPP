@@ -1,5 +1,6 @@
 import json, time, sys, os, shutil
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
+import argparse
 
 from bscampp import get_logger, log_exception, __version__
 from bscampp.configs import *
@@ -189,7 +190,7 @@ def _init_parser():
     advance_group.add_argument("-V", "--votes", type=int,
                   help="Number of votes per query sequence. Default: 5",
                   required=False, default=5)
-    advance_group.add_argument("-s", "--similarityflag", type=str2bool,
+    advance_group.add_argument("--similarityflag", type=str2bool,
                   help="Boolean, True if maximizing sequence similarity "
                   "instead of simple Hamming distance (ignoring gap "
                   "sites in the query). Default: True",
@@ -203,7 +204,7 @@ def _init_parser():
     misc_group.add_argument("-n","--tmpfilenbr", type=int,
                   help="Temporary file indexing. Default: 0",
                   required=False, default=0)
-    misc_group.add_argument("-f", "--fragmentflag", type=str2bool,
+    misc_group.add_argument("--fragmentflag", type=str2bool,
                   help="If queries contains fragments. Default: True",
                   required=False, default=True)
     misc_group.add_argument("--keeptemp", type=str2bool,

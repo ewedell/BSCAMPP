@@ -9,7 +9,7 @@ packages = ["bscampp", "bscampp.tools"]
 name = "bscampp"
 dynamic = ["version", "dependencies"]
 description = "BSCAMPP - A Scalable Phylogenetic Placement Tool"
-readme = {file = "README.md"}
+readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
         {name = "Eleanor Wedell", email = "ewedell2@illinois.edu"},
         {name = "Chengze Shen", email = "chengze5@illinois.edu"}
