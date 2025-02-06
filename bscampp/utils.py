@@ -9,6 +9,23 @@ import random
 import statistics
 import copy
 
+import argparse
+# reformat argparse help text formatting
+class SmartHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    def add_text(self, text):
+        if text is not None:
+            text = text.replace("\\n", "\n").replace("\\t", "\t")
+        super().add_text(text)
+    def _split_lines(self, text, width):
+        if '\n' in text:
+            temp = text.split('\n')
+            ret = []
+            for _splice in [argparse.RawDescriptionHelpFormatter._split_lines(self, x, width)
+                    for x in temp]:
+                ret.extend(_splice)
+            return ret
+        return argparse.RawDescriptionHelpFormatter._split_lines(self, text, width)
+
 # store bracket open/close for convenience in label parsing
 BRACKET = {
     '[': ']', # square bracket

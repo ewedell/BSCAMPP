@@ -44,14 +44,38 @@ def bscampp_pipeline(*args, **kwargs):
     send = time.time()
     _LOG.info('BSCAMPP completed in {} seconds...'.format(send - s1))
 
+'''
+Parse arguments from commandline and config file
+'''
 def parseArguments():
+    global _root_dir, main_config_path
+    parser = _init_parser()
+    cmdline_args = sys.argv[1:]
+    
+    # build config
+    buildConfigs(parser, cmdline_args)
+    _LOG.info('BSCAMPP is running with: {}'.format(
+        ' '.join(cmdline_args)))
+
+    return parser, cmdline_args
+
+def _init_parser():
     # example usage
-    example_usage = '''Example usages:
+    example_usages = '''Example usages:
 > default
     %(prog)s -i raxml.info 
 '''
 
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser(
+            description=(
+                "This program runs BSCAMPP, a scalable phylogenetic "
+                "placement framework that scales EPA-ng/pplacer "
+                "to very large tree placement."
+                ),
+            conflict_handler='resolve',
+            epilog=example_usages,
+            formatter_class=utils.SmartHelpFormatter,
+            )
     parser.add_argument("-i", "--info", type=str,
                         help="Path to model parameters",
                         required=True, default=None)
@@ -97,6 +121,7 @@ def parseArguments():
             help='The base placement method to run, default: epa-ng',
             choices=['epa-ng', 'pplacer'], default='epa-ng',
             required=False)
+    return parser
 
 def str2bool(b):
     if isinstance(b, bool):

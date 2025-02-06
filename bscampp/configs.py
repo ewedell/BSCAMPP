@@ -4,7 +4,6 @@ try:
 except ImportError:
     from ConfigParser import configparser
 from argparse import ArgumentParser, Namespace
-from platform import platform
 from bscampp.init_configs import init_config_file
 from bscampp import get_logger
 

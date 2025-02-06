@@ -5,7 +5,7 @@
 #   from https://github.com/c5shen/TIPP3.git
 #
 ############################################################
-from operator import itergetter
+from operator import itemgetter
 import logging, os
 
 # update system recursion limit to avoid issues

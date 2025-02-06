@@ -1,6 +1,7 @@
 __pycache__
 examples/bscampp_output
 examples/tmp.sh
+bscampp/home.path
 bscampp/tools/hamming_distance/CMakeFiles/
 bscampp/tools/hamming_distance/Makefile
 bscampp/tools/hamming_distance/cmake_install.cmake
