@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["bscampp", "bscampp.tools"]
+
+[project]
+name = "bscampp"
+dynamic = ["version", "dependencies"]
+description = "BSCAMPP - A Scalable Phylogenetic Placement Tool"
+readme = {file = "README.md"}
+authors = [
+        {name = "Eleanor Wedell", email = "ewedell2@illinois.edu"},
+        {name = "Chengze Shen", email = "chengze5@illinois.edu"}
+        ]
+license = {file = "LICENSE"}
+requires-python = ">=3.7"
+classifiers = [
+        "Development Status :: 4 - Beta",
+        "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Software Development",
+        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12"
+        ]
+
+[project.scripts]
+bscampp = "bscampp.bscampp_pipeline:bscampp_pipeline"
+"run_bscampp.py" = "bscampp.bscampp_pipeline:bscampp_pipeline"
+
+[project.urls]
+Homepage = "https://github.com/ewedell/BSCAMPP"
+Changelog = "https://github.com/ewedell/BSCAMPP/CHANGELOG.md"
+
+[tool.setuptools.dynamic]
+version = {attr = "bscampp.__version__"}
+dependencies = {file = ["requirements.txt"]}
+

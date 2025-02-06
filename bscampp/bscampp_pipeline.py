@@ -1,15 +1,50 @@
-import sys, os, utils, shutil
-import json
-import time
-import argparse
-import treeswift
-import copy
-import multiprocessing as mp
-import threading
-import itertools
-from collections import Counter
+import json, time, sys, os, shutil
+from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 
-def parseArgs():
+from bscampp import get_logger, __version__
+from bscampp.configs import *
+import bscampp.utils as utils
+
+from multiprocessing import Manager
+from concurrent.futures import ProcessPoolExecutor
+
+_LOG = get_logger(__name__)
+
+# process pool initializer
+def initial_pool(parser, cmdline_args):
+    # avoid redundant logging for child process
+    buildConfigs(parser, cmdline_args, child_process=True)
+
+# main pipeline for BSCAMPP
+def bscampp_pipeline(*args, **kwargs):
+    s1 = time.time()
+    m = Manager(); lock = m.Lock()
+
+    # parse command line arguments and build configurations
+    parser, cmdline_args = parseArguments()
+
+    # initialize multiprocessing (if needed)
+    _LOG.warning('Initializing ProcessPoolExecutor...')
+    pool = ProcessPoolExecutor(Configs.num_cpus, initializer=initial_pool,
+            initargs=(parser, cmdline_args,))
+
+    # (1) TODO
+
+    # shutdown pool
+    _LOG.warning('Shutting down ProcessPoolExecutor...')
+    pool.shutdown()
+    _LOG.warning('ProcessPoolExecutor shut down.')
+    
+    # clean up temp files if not keeping
+    if not Configs.keeptemp:
+        _LOG.info('Removing temporary files...')
+        clean_temp_files()
+
+    # stop BSCAMPP 
+    send = time.time()
+    _LOG.info('BSCAMPP completed in {} seconds...'.format(send - s1))
+
+def parseArguments():
     # example usage
     example_usage = '''Example usages:
 > default

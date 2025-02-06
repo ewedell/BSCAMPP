@@ -1,0 +1,5 @@
+/u/chengze5/tallis/softwares/BSCAMPP_code/bscampp/tools/hamming_distance/CMakeFiles/hamming.dir
+/u/chengze5/tallis/softwares/BSCAMPP_code/bscampp/tools/hamming_distance/CMakeFiles/fragment_hamming.dir
+/u/chengze5/tallis/softwares/BSCAMPP_code/bscampp/tools/hamming_distance/CMakeFiles/homology.dir
+/u/chengze5/tallis/softwares/BSCAMPP_code/bscampp/tools/hamming_distance/CMakeFiles/edit_cache.dir
+/u/chengze5/tallis/softwares/BSCAMPP_code/bscampp/tools/hamming_distance/CMakeFiles/rebuild_cache.dir

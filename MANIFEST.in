@@ -1,0 +1,8 @@
+include README.md
+include CHANGELOG.md
+include run_bscampp.py
+include bscampp/default.config
+include requirements.txt
+graft bscampp/tools
+prune */__pycache__
+global-exclude *.py[cod]

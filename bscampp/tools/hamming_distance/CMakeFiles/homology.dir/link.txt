@@ -1,0 +1,1 @@
+/sw/apps/gcc/12.4.0/bin/c++ CMakeFiles/homology.dir/src/homology.cpp.o -o homology  /sw/apps/gcc/12.4.0/lib64/libgomp.so /lib64/libpthread.a 
