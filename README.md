@@ -1,63 +1,177 @@
-# BSCAMPP_code
-### New Code for EPA-ng-BSCAMPP
+# BSCAMPP - A Scalable Phylogenetic Placement Method and Framework
 
-This is based on the code from EPA-ng-SCAMPP available at https://github.com/chry04/PLUSplacer. 
+**Table of Contents**
+1. [Overview](#overview)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Example Code and Data](#example-code-and-data)
 
-The algorithm in described in detail at doi: https://doi.org/10.1101/2022.10.26.513936 
+# Overview
+* **Inputs**
+  1. Reference tree to place sequences into.
+  2. Alignment of reference sequences.
+  3. Alignment of query sequences (can be combined with ii.).
+  4. Tree info file.
+     - (EPA-ng as base method), RAxML-ng info file, typically with suffix `.bestModel`.
+     - (pplacer as base method), RAxML-ng or FastTree log file.
+* **Output**
+  1. Placement results of query sequences in the reference tree in `.jplace` format.
 
-It is recommended that EPA-ng-BSCAMPP be used with subtrees of size 2000 and with 5 votes based on current best results (especially if sequences are fragmentary). Defaults for the subtree size and number of votes are set to 2,000 and 5 respectively.
 
-The only required arguments are the RAxML-ng info file (with typical suffix bestModel), the RAxML-ng tree (with suffix bestTree), a multiple sequence alignment in fasta format with both the aligned queries and reference sequences, and the desired output directory for the EPA-ng-BSCAMPP.jplace output file. 
+BSCAMPP is an extension and scalable solution to its previous method [SCAMPP](https://github.com/chry04/PLUSplacer) for phylogenetic placement.
+BSCAMPP achieves some magnitudes of speedup compared to the SCAMPP framework.
+The core algorithm is described in detail at <https://doi.org/10.1101/2022.10.26.513936>.
+In short, BSCAMPP in default uses EPA-ng as the base placement method, allowing it to scale to placement trees of up to ~200,000 leaves.
+BSCAMPP achieves this by extracting appropriate subtrees and assigning each query to its most fitting subtree.
 
-# REQUIREMENTS
+BSCAMPP essentially is a divide-and-conquer framework and can be used with any base placement methods (e.g., `pplacer` as well).
+Currently, BSCAMPP is implemented with `epa-ng` and `pplacer`.
 
-Python3, TreeSwift. 
+It is recommended that EPA-ng-BSCAMPP be used with subtrees of size 2000 and with 5 votes based on current best results, especially if sequences
+are fragmentary. Defaults for the subtree size and number of votes are set to 2,000 and 5 respectively (see [Usage](#usage) for more details
+on customizing BSCAMPP).
 
-Treeswift can be installed using pip. See https://github.com/niemasd/TreeSwift for details.
+# Installation
+BSCAMPP was tested on **Python 3.7 to 3.12**. There are two ways to install and use BSCAMPP: (1) with PyPI, or
+(2) from this GitHub repository. If you have any difficulties installing or running BSCAMPP, please contact Eleanor Wedell
+(ewedell@illinois.edu).
 
-# USAGE
+### External requirements
+EPA-ng and/or pplacer are requirements to run BSCAMPP since BSCAMPP will use them as the base phylogenetic placement methods.
+By default, BSCAMPP will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
+We also included a compiled version of `pplacer` for the Linux system under `bscampp/tools`.
 
-To get started there is a test tree and MSA available in the testing folder (originally from the RNAsim-VS datasets https://doi.org/10.1093/sysbio/syz063). 
+### (1) Install with `pip` (Coming soon)
+The easiest way to install BSCAMPP is to use `pip install`. This will also install all required Python packages.
 
-Simply cd into the BSCAMPP_code directory and use the command as follows:
+```bash
+# 1. install with pip (--user if no root access)
+pip install bscampp [--user]
 
->python3 EPA-ng-BSCAMPP.py -i ./testing/aln_dna.fa.raxml.bestModel -t ./testing/backbone.tree -d ./ -a ./testing/aln_dna.fa -b 100
+# 2. Two binary executables will be installed. The first time
+#    running any will create a config file at
+#    ~/.bscampp/main.config that resolves the links to all
+#    external software (e.g., epa-ng, pplacer)
+bscampp [-h]    # or
+run_bscampp.py [-h]
+```
 
-The output jplace file should appear in the BSCAMPP_code directory. 
+### (2) Install from GitHub
+Alternatively, the user can clone this GitHub repository and install the required packages manually.
 
-A more comprehensive usage is as follows:
+#### Requirements
+```bash
+python>=3.7
+ConfigParser>=5.0.0
+numpy>=1.21.6
+treeswift>=1.1.45
+taxtastic>=0.9.3
+```
 
->usage: EPA-ng-BSCAMPP.py [-h] -i INFO -t TREE -d OUTDIR -a ALIGNMENT
->                                [-o OUTPUT] [-m MODEL] [-b SUBTREESIZE]
->                                [-V VOTES] [-s SUBTREETYPE] [-n TMPFILENBR]
->                                [-q QALIGNMENT] [-f FRAGMENTFLAG] [-v]
->
->arguments: 
->> - -h, --help            show this help message and exit
->> - -i INFO, --info INFO  Path to model parameters
->> - -t TREE, --tree TREE  Path to reference tree with estimated branch lengths
->> - -d OUTDIR, --outdir OUTDIR
->>                       Directory path for output
->> - -a ALIGNMENT, --alignment ALIGNMENT
->>                       Path for query and reference sequence alignment in
->>                       fasta format
->> - -o OUTPUT, --output OUTPUT
->>                      Output file name
->> - -m MODEL, --model MODEL
-                        Model used for edge distances
->> - -b SUBTREESIZE, --subtreesize SUBTREESIZE
-                        Integer size of the subtree
->> - -V VOTES, --votes VOTES
-                        Integer number of votes per query sequence
->> - -s SIMILARITYFLAG, --similarityflag SIMILARITYFLAG
-                        boolean, False if maximizing sequence similarity instead
-                        of simple Hamming distance (ignoring gap sites in the query)
->> - -n TMPFILENBR, --tmpfilenbr TMPFILENBR
-                        tmp file number
->> - -q QALIGNMENT, --qalignment QALIGNMENT
-                        Path to query sequence alignment in fasta format (ref
-                        alignment separate)
->> - -f FRAGMENTFLAG, --fragmentflag FRAGMENTFLAG
-                        boolean, True if queries contain fragments
->> - -v, --version         show the version number and exit
+```bash
+# 1. Close the GitHub repo
+git clone https://github.com/ewedell/BSCAMPP.git
 
+# 2. Install all requirements
+pip install -r requirements.txt
+
+# 3. Execute BSCAMPP executable `run_bscampp.py`
+python run_bscampp.py [-h]
+```
+
+# Usage
+All parameter settings can be found by running
+```bash
+run_bscampp.py -h
+```
+
+### (1) Default case (`epa-ng`)
+```bash
+run_bscampp.py -i [raxml best model] -t [reference tree] -a [alignment file]
+```
+To run BSCAMPP in its default mode with EPA-ng. `[alignment file]` should contain both sequences from the placement tree and
+the query sequences to be placed. This will create an output directory `bscampp_output` and write the placement results to
+`bscampp_output/bscampp_result.jplace`.
+
+### (2) Separately giving query alignment and finer control of outputs
+```bash
+run_bscampp.py -i [raxml best model] -t [reference tree] -a [reference alignment] \
+    -q [query sequence alignment] -d [output directory] -o [output name] \
+    --threads [num cpus]
+```
+
+### (3) Using `pplacer` as the base placement method
+```bash
+run_bscampp.py -i [logfile from either RAxML/FastTree] -t [reference tree] \
+    -a [reference alignment] -q [query sequence alignment]
+```
+
+### More comprehensive usage
+```bash
+> usage: run_bscampp.py [-h] [-v] [--placement-method {epa-ng,pplacer}] -i
+>                       INFO_PATH -t TREE_PATH -a ALN_PATH [-q QALN_PATH]
+>                       [-d OUTDIR] [-o OUTNAME] [--threads NUM_CPUS] [-m MODEL]
+>                       [-b SUBTREESIZE] [-V VOTES]
+>                       [--similarityflag SIMILARITYFLAG] [-n TMPFILENBR]
+>                       [--fragmentflag FRAGMENTFLAG] [--keeptemp KEEPTEMP]
+> 
+> This program runs BSCAMPP, a scalable phylogenetic placement framework that scales EPA-ng/pplacer to very large tree placement.
+> 
+> options:
+>   -h, --help            show this help message and exit
+>   -v, --version         show program's version number and exit
+> 
+> BASIC PARAMETERS:
+>   These are the basic parameters for BSCAMPP.
+> 
+>   --placement-method {epa-ng,pplacer}
+>                         The base placement method to use. Default: epa-ng
+>   -i INFO_PATH, --info INFO_PATH, --info-path INFO_PATH
+>                         Path to model parameters. E.g., .bestModel from
+>                         RAxML/RAxML-ng
+>   -t TREE_PATH, --tree TREE_PATH, --tree-path TREE_PATH
+>                         Path to reference tree with estimated branch lengths
+>   -a ALN_PATH, --alignment ALN_PATH, --aln-path ALN_PATH
+>                         Path for reference sequence alignment in FASTA format.
+>                         Optionally with query sequences. Query alignment can
+>                         be specified with --qaln-path
+>   -q QALN_PATH, --qalignment QALN_PATH, --qaln-path QALN_PATH
+>                         Optionally provide path to query sequence alignment in
+>                         FASTA format. Default: None
+>   -d OUTDIR, --outdir OUTDIR
+>                         Directory path for output. Default: bscampp_output/
+>   -o OUTNAME, --output OUTNAME
+>                         Output file name. Default: bscampp_result.jplace
+>   --threads NUM_CPUS, --num-cpus NUM_CPUS
+>                         Number of cores for parallelization, default: -1 (all)
+> 
+> ADVANCE PARAMETERS:
+>   These parameters control how BSCAMPP is run. The default values are set based on experiments.
+> 
+>   -m MODEL, --model MODEL
+>                         Model used for edge distances. Default: GTR
+>   -b SUBTREESIZE, --subtreesize SUBTREESIZE
+>                         Integer size of the subtree. Default: 2000
+>   -V VOTES, --votes VOTES
+>                         Number of votes per query sequence. Default: 5
+>   --similarityflag SIMILARITYFLAG
+>                         Boolean, True if maximizing sequence similarity
+>                         instead of simple Hamming distance (ignoring gap sites
+>                         in the query). Default: True
+> 
+> MISCELLANEOUS PARAMETERS:
+>   -n TMPFILENBR, --tmpfilenbr TMPFILENBR
+>                         Temporary file indexing. Default: 0
+>   --fragmentflag FRAGMENTFLAG
+>                         If queries contains fragments. Default: True
+>   --keeptemp KEEPTEMP   Boolean, True to keep all temporary files. Default:
+                        False
+```
+
+
+# Example Code and Data
+Example script and data are provided in this GitHub repository in `examples/`. The data is originally from the [RNAsim-VS datasets](https://doi.org/10.1093/sysbio/syz063).
+* `examples/run.sh`: contains a simple script to test BSCAMPP with `epa-ng` or `pplacer`, placing 200 query sequences to a 10000-leaf placement tree.
+  The info file is from RAxML-ng when running `epa-ng`, and from FastTree-2 when running `pplacer`.
+  - `run.sh` will invoke BSCAMPP with `epa-ng`.
+  - `run.sh pplacer` will invoke BSCAMPP with `pplacer`.
