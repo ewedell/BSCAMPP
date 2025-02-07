@@ -241,8 +241,12 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
 
     # go over the dictionary of subtrees and their assigned queries
     # perform placement using either EPA-ng or pplacer
-    final_subtree_count = 0
+    final_subtree_count, total_subtrees_examined = 0, 0
     for subtree, query_list in new_subtree_dict.items():
+        total_subtrees_examined += 1
+        _LOG.info('- Subtree {}/{} with {} queries'.format(
+            total_subtrees_examined, len(new_subtree_dict), len(query_list)))
+
         # empty subtree, continue
         if len(query_list) == 0:
             continue
@@ -303,15 +307,28 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         # read in each placement result
         place_file = open(tmp_output, 'r')
         place_json = json.load(place_file)
+        tgt = "n"
+        if Configs.placement_method == 'pplacer':
+            tgt = "nm"
         if len(place_json["placements"]) > 0:
             added_tree, edge_dict = utils.read_tree_newick_edge_tokens(
                     place_json["tree"])
 
+            # obtain the fields for "p"
+            fields = place_json["fields"]
+            # set the fields in jplace accordingly
+            if "fields" not in jplace:
+                jplace["fields"] = fields
+            field_to_idx = {field: i for i, field in enumerate(fields)}
+
             for tmp_place in place_json["placements"]:
-                placed_query_list.append(tmp_place["n"][0])
+                #print(tmp_place)
+                placed_query_list.append(tmp_place[tgt][0])
                 for i in range(len(tmp_place["p"])):
-                    edge_num = tmp_place["p"][i][0]
-                    edge_distal = tmp_place["p"][i][3]
+                    edge_num = tmp_place["p"][i][
+                            field_to_idx['edge_num']]
+                    edge_distal = tmp_place["p"][i][
+                            field_to_idx['distal_length']]
 
                     right_n = edge_dict[str(edge_num)]
                     left_n = right_n.get_parent()
@@ -336,13 +353,15 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                             target_edge = path[j]
                             break
 
-                    tmp_place["p"][i][0] = 0
+                    #tmp_place["p"][i][field_to_idx['edge_num']] = 0
 
                     label = target_edge.get_label()
 
                     [taxon, target_edge_nbr] = label.split('%%',1)
-                    tmp_place["p"][i][0] = target_edge.get_edge_length()+length
-                    tmp_place["p"][i][1] = int(target_edge_nbr)
+                    tmp_place["p"][i][field_to_idx['distal_length']] = \
+                            target_edge.get_edge_length()+length
+                    tmp_place["p"][i][field_to_idx['edge_num']] = \
+                            int(target_edge_nbr)
 
                 placements.append(tmp_place.copy())
         place_file.close()
@@ -352,8 +371,8 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
     jplace["placements"] = placements
     jplace["metadata"] = {"invocation": " ".join(cmdline_args)}
     jplace["version"] = 3
-    jplace["fields"] = ["distal_length", "edge_num", "like_weight_ratio", \
-            "likelihood", "pendant_length"]
+    #jplace["fields"] = ["distal_length", "edge_num", "like_weight_ratio", \
+    #        "likelihood", "pendant_length"]
 
     t1 = time.perf_counter()
     _LOG.info('Time to place queries to subtrees: {} seconds'.format(t1 - t0))
