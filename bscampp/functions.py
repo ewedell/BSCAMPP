@@ -241,8 +241,12 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
 
     # go over the dictionary of subtrees and their assigned queries
     # perform placement using either EPA-ng or pplacer
-    final_subtree_count = 0
+    final_subtree_count, total_subtrees_examined = 0, 0
     for subtree, query_list in new_subtree_dict.items():
+        total_subtrees_examined += 1
+        _LOG.info('Examining subtree {}/{} with {} assigned queries'.format(
+            total_subtrees_examined, len(new_subtree_dict), len(query_list)))
+
         # empty subtree, continue
         if len(query_list) == 0:
             continue
