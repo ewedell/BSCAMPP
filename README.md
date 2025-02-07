@@ -27,7 +27,7 @@ BSCAMPP achieves this by extracting appropriate subtrees and assigning each quer
 BSCAMPP essentially is a divide-and-conquer framework and can be used with any base placement methods (e.g., `pplacer` as well).
 Currently, BSCAMPP is implemented with `epa-ng` and `pplacer`.
 
-It is recommended that EPA-ng-BSCAMPP be used with subtrees of size 2000 and with 5 votes based on current best results, especially if sequences
+It is recommended that BSCAMPP be used with subtrees of size 2000 and with 5 votes based on current best results, especially if sequences
 are fragmentary. Defaults for the subtree size and number of votes are set to 2,000 and 5 respectively (see [Usage](#usage) for more details
 on customizing BSCAMPP).
 
