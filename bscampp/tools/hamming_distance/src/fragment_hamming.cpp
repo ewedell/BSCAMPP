@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
 #include <omp.h>
 
 
@@ -17,10 +19,13 @@ int main( int argc, char **argv ){
         return -1;
     }
     //std::cout << argv[2] << std::endl;
-    std::string name_arr[std::stoi(argv[2])];
-    std::string seq_arr[std::stoi(argv[2])];
-    std::string line, name, content;
+    //std::string name_arr[std::stoi(argv[2])];
+    //std::string seq_arr[std::stoi(argv[2])];
+    int ref_size = std::stoi(argv[2]) + 3;
     int count1 = 0;
+    std::vector<std::string> name_arr(ref_size);
+    std::vector<std::string> seq_arr(ref_size);
+    std::string line, name, content;
 
     while( std::getline( input_q, line ).good() ){
         if( line.empty() || line[0] == '>' ){ // Identifier marker
@@ -60,10 +65,13 @@ int main( int argc, char **argv ){
         std::cerr << "Error opening '"<<argv[3]<<"'. Bailing out." << std::endl;
         return -1;
     }
-    std::cout << argv[4] << std::endl;
-    std::string q_name_arr[std::stoi(argv[4])+3];
-    std::string q_seq_arr[std::stoi(argv[4])+3];
+    //std::cout << argv[4] << std::endl;
+    int q_size = std::stoi(argv[4]) + 3;
     int count2 = 0;
+    //std::string q_name_arr[std::stoi(argv[4])+3];
+    //std::string q_seq_arr[std::stoi(argv[4])+3];
+    std::vector<std::string> q_name_arr(q_size);
+    std::vector<std::string> q_seq_arr(q_size);
     name = "";
     while( std::getline( input, line ).good() ){
         if( line.empty() || line[0] == '>' ){ // Identifier marker
@@ -98,7 +106,7 @@ int main( int argc, char **argv ){
         count2++;
     }
 
-    std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
+    //std::cout << "ref count: "<< count1 <<" query count2: " <<count2 << std::endl;
 
     std::ofstream outFile(argv[5]);
 

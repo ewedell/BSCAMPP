@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
 #include <omp.h>
 
 
@@ -9,7 +11,6 @@ int main( int argc, char **argv ){
         return -1;
     }
  
- 
     // read in the reference sequences first
     std::ifstream input_q(argv[1]);
     if(!input_q.good()){
@@ -17,10 +18,13 @@ int main( int argc, char **argv ){
         return -1;
     }
 
-    std::string name_arr[std::stoi(argv[2])];
-    std::string seq_arr[std::stoi(argv[2])];
-    std::string line, name, content;
+    //std::string name_arr[std::stoi(argv[2])];
+    //std::string seq_arr[std::stoi(argv[2])];
+    int ref_size = std::stoi(argv[2]) + 3;
     int count1 = 0;
+    std::vector<std::string> name_arr(ref_size);
+    std::vector<std::string> seq_arr(ref_size);
+    std::string line, name, content;
 
     while( std::getline( input_q, line ).good() ){
         if( line.empty() || line[0] == '>' ){ // Identifier marker
@@ -46,7 +50,6 @@ int main( int argc, char **argv ){
         }
     }
     
-    
     if( !name.empty() ){ // Print out what we read from the last entry
         //std::cout << name << " : " << content << std::endl;        
         name_arr[count1] = name;
@@ -61,10 +64,14 @@ int main( int argc, char **argv ){
         return -1;
     }
 
-    std::string q_name_arr[std::stoi(argv[4])+3];
-    std::string q_seq_arr[std::stoi(argv[4])+3];
+    int q_size = std::stoi(argv[4]) + 3;
     int count2 = 0;
+    //std::string q_name_arr[std::stoi(argv[4])+3];
+    //std::string q_seq_arr[std::stoi(argv[4])+3];
+    std::vector<std::string> q_name_arr(q_size);
+    std::vector<std::string> q_seq_arr(q_size);
     name = "";
+
     while( std::getline( input, line ).good() ){
         if( line.empty() || line[0] == '>' ){ // Identifier marker
             if( !name.empty() ){ // Print out what we read from the last entry
