@@ -108,7 +108,8 @@ run_bscampp.py -i [raxml best model] -t [reference tree] -a [reference alignment
 ### (3) Using `pplacer` as the base placement method
 ```bash
 run_bscampp.py -i [logfile from either RAxML/FastTree] -t [reference tree] \
-    -a [reference alignment] -q [query sequence alignment]
+    -a [reference alignment] -q [query sequence alignment] \
+    --placement-method pplacer
 ```
 
 ### More comprehensive usage
