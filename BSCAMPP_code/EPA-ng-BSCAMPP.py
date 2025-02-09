@@ -279,7 +279,8 @@ def main(args):
         elif placement_method == 'pplacer':
             # build ref_pkg with info and tmp_tree and tmp_aln
             ref_pkg = "tmp{}/{}{}.refpkg".format(run,name,outFile)
-            os.system("./taxit create -P {} -l {} --aln-fasta {} --tree-file {} --tree-stats {}".format(ref_pkg, name, tmp_ref_aln, tmp_tree, info))
+            os.system("./taxit create -P {} -l {} --aln-fasta {} --tree-file {} --tree-stats {}".format(
+                ref_pkg, name, tmp_aln, tmp_tree, info))
 
             cmd_list = [f'{__root}/pplacer',
                     '-m', model,

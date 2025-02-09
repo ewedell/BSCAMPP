@@ -45,10 +45,10 @@ def readData(workdir):
         # after separating queries from the reference alignment, write
         # them to to TEMP/
         qaln_path = os.path.join(workdir, 'qaln.fa')
-        write_fasta(temp_qaln_path, q_dict)
+        write_fasta(qaln_path, q_dict)
         
         aln_path = os.path.join(workdir, 'aln.fa')
-        write_fasta(temp_aln_path, ref_dict)
+        write_fasta(aln_path, ref_dict)
 
     t1 = time.perf_counter()
     _LOG.info('Time to read in input data: {} seconds'.format(t1 - t0))
@@ -70,7 +70,7 @@ def getClosestLeaves(aln_path, qaln_path, aln, qaln, workdir):
     if Configs.similarityflag:
         cmd.append(os.path.join(Configs.hamming_distance_dir, 'homology'))
     else:
-        if fragment_flag == False:
+        if Configs.fragmentflag == False:
             cmd.append(os.path.join(Configs.hamming_distance_dir, 'hamming'))
         else: 
             cmd.append(os.path.join(
