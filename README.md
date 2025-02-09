@@ -46,7 +46,7 @@ EPA-ng and/or pplacer are requirements to run BSCAMPP since BSCAMPP will use the
 By default, BSCAMPP will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
 We also included a compiled version of `pplacer` for the Linux system under `bscampp/tools`.
 
-### (1) Install with `pip` (Coming soon)
+### (1) Install with `pip`
 The easiest way to install BSCAMPP is to use `pip install`. This will also install all required Python packages.
 
 ```bash
