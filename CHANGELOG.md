@@ -1,3 +1,7 @@
+# BSCAMPP v1.0.1
+1. Bumped version to full release.
+2. Completed examples for display in `bscampp --help`.
+
 # BSCAMPP v1.0.1b
 1. Removed redundant codes and fixed missing variables.
 2. Added badges for PyPI installation and current Python Build, etc.

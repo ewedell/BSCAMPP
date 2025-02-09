@@ -123,8 +123,12 @@ def parseArguments(dry_run=False):
 def _init_parser():
     # example usage
     example_usages = '''Example usages:
-> default
-    %(prog)s -i raxml.info 
+> (1) Default
+    %(prog)s -i raxml.bestModel -t reference.tre -a alignment.fa  
+> (2) Separate alignment file for query sequences
+    %(prog)s -i raxml.bestModel -t reference.tre -a reference.fa -q query.fa
+> (3) Use pplacer instead of EPA-ng as base method (need RAxML-ng info or FastTree log file)
+    %(prog)s -i fasttree.log -t reference.tre -a alignment.fa --placement-method pplacer
 '''
 
     parser = ArgumentParser(
