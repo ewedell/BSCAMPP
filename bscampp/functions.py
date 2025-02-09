@@ -15,9 +15,12 @@ Function to read in the placement tree and alignment.
 If query alignment is provided, will use the provided query instead of
 the ones (potentially) included in the reference alignment
 '''
-def readData(workdir):
+def readData(workdir, dry_run=False):
     t0 = time.perf_counter()
     _LOG.info('Reading in input data...')
+
+    if dry_run:
+        return None, dict(), '', dict(), '', dict()
 
     # (1) load reference tree
     tree = treeswift.read_tree_newick(Configs.tree_path)
@@ -58,12 +61,15 @@ def readData(workdir):
 Function to get the closest leaf for each query sequence based on Hamming
 distance
 '''
-def getClosestLeaves(aln_path, qaln_path, aln, qaln, workdir):
+def getClosestLeaves(aln_path, qaln_path, aln, qaln, workdir, dry_run=False):
     t0 = time.perf_counter()
     _LOG.info('Computing closest leaves for query sequences...')
+
+    if dry_run:
+        return dict(), dict()
+
     query_votes_dict = dict()
     query_top_vote_dict = dict()
-    
     tmp_output = os.path.join(workdir, 'closest.txt') 
 
     cmd = []
@@ -115,9 +121,12 @@ def getClosestLeaves(aln_path, qaln_path, aln, qaln, workdir):
 Function to assign queries to subtrees based on their votes
 '''
 def assignQueriesToSubtrees(query_votes_dict, query_top_vote_dict,
-        tree, leaf_dict):
+        tree, leaf_dict, dry_run=False):
     t0 = time.perf_counter()
     _LOG.info('Adding query votes to the placement tree...')
+
+    if dry_run:
+        return dict(), []
 
     # (1) go over the query votes and add them to corresponding leaves
     lf_votes = Counter()
@@ -229,9 +238,12 @@ def placeOneSubtree():
 Function to perform placement of queries for each subtree
 '''
 def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
-        aln, qaln, cmdline_args, workdir, pool, lock):
+        aln, qaln, cmdline_args, workdir, pool, lock, dry_run=False):
     t0 = time.perf_counter()
     _LOG.info('Performing placement on each subtree...')
+
+    if dry_run:
+        return dict()
 
     # prepare to write an aggregated results to local
     jplace = dict()
@@ -381,9 +393,12 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
 '''
 Function to write a given jplace object to local output
 '''
-def writeOutputJplace(output_jplace):
+def writeOutputJplace(output_jplace, dry_run=False):
     t0 = time.perf_counter()
     _LOG.info('Writing aggregated placements to local...')
+    
+    if dry_run:
+        return
 
     outpath = os.path.join(Configs.outdir, Configs.outname)
     outf = open(outpath, 'w')

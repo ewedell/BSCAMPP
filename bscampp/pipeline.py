@@ -22,6 +22,11 @@ def bscampp_pipeline(*args, **kwargs):
     t0 = time.perf_counter()
     m = Manager(); lock = m.Lock()
 
+    # set up a dry run if specified
+    dry_run = False
+    if 'dry_run' in kwargs and isinstance(kwargs['dry_run'], bool):
+        dry_run = kwargs['dry_run']
+
     # parse command line arguments and build configurations
     parser, cmdline_args = parseArguments()
 
@@ -40,24 +45,27 @@ def bscampp_pipeline(*args, **kwargs):
 
     # (1) read in tree, alignment, and separate reference sequences from
     # query sequences
-    tree, leaf_dict, aln_path, aln, qaln_path, qaln = readData(workdir)
+    tree, leaf_dict, aln_path, aln, qaln_path, qaln = readData(workdir,
+            dry_run=dry_run)
 
     # (2) compute closest leaves for all query sequences
     query_votes_dict, query_top_vote_dict = getClosestLeaves(
-            aln_path, qaln_path, aln, qaln, workdir)
+            aln_path, qaln_path, aln, qaln, workdir, dry_run=dry_run)
 
     # (3) first assign all queries to their closest-leaf subtrees,
     # then do reassignment to minimize distance between each's top vote
     # and the subtree's seed leaf
     new_subtree_dict, placed_query_list = assignQueriesToSubtrees(
-            query_votes_dict, query_top_vote_dict, tree, leaf_dict)
+            query_votes_dict, query_top_vote_dict, tree, leaf_dict,
+            dry_run=dry_run)
 
     # (4) perform placement for each subtree
     output_jplace = placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict,
-            placed_query_list, aln, qaln, cmdline_args, workdir, pool, lock)
+            placed_query_list, aln, qaln, cmdline_args, workdir, pool, lock,
+            dry_run=dry_run)
 
     # (5) write the output jplace to local
-    writeOutputJplace(output_jplace)
+    writeOutputJplace(output_jplace, dry_run=dry_run)
 
     # shutdown pool
     _LOG.warning('Shutting down ProcessPoolExecutor...')
@@ -72,6 +80,11 @@ def bscampp_pipeline(*args, **kwargs):
     # stop BSCAMPP 
     send = time.perf_counter()
     _LOG.info('BSCAMPP completed in {} seconds...'.format(send - t0))
+
+    if dry_run:
+        return True
+    else:
+        return False
 
 def clean_temp_files():
     # all temporary files/directories to remove
