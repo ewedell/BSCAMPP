@@ -8,6 +8,7 @@ from os.path import expanduser,isfile
 import random
 import statistics
 import copy
+import gzip
 
 import argparse
 # reformat argparse help text formatting
@@ -850,7 +851,7 @@ def read_tree_newick_edge_tokens(newick):
         except:
             raise TypeError("newick must be a str")
     if newick.lower().endswith('.gz'): # gzipped file
-        f = gopen(expanduser(newick)); ts = f.read().decode().strip(); f.close()
+        f = gzip.open(expanduser(newick)); ts = f.read().decode().strip(); f.close()
     elif isfile(expanduser(newick)): # plain-text file
         f = open(expanduser(newick)); ts = f.read().strip(); f.close()
     else:
