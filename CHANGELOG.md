@@ -2,6 +2,7 @@
 1. Removed redundant codes and fixed missing variables.
 2. Added badges for PyPI installation and current Python Build, etc.
 3. Added a single Pytest for dry-running BSCAMPP under `tests/`.
+4. For 3, added the `dry_run` parameter to function `pipeline.py:bscampp_pipeline`.
 
 # BSCAMPP v1.0.1a
 1. Completed features with both `epa-ng` and `pplacer` support.

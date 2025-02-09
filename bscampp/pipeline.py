@@ -28,7 +28,7 @@ def bscampp_pipeline(*args, **kwargs):
         dry_run = kwargs['dry_run']
 
     # parse command line arguments and build configurations
-    parser, cmdline_args = parseArguments()
+    parser, cmdline_args = parseArguments(dry_run=dry_run)
 
     # initialize multiprocessing (if needed)
     _LOG.warning('Initializing ProcessPoolExecutor...')
@@ -36,12 +36,15 @@ def bscampp_pipeline(*args, **kwargs):
             initargs=(parser, cmdline_args,))
 
     # (0) temporary files wrote to here
-    workdir = os.path.join(Configs.outdir, f'tmp{Configs.tmpfilenbr}')
-    try:
-        if not os.path.isdir(workdir):
-            os.makedirs(workdir)
-    except OSError:
-        log_exception(_LOG)
+    if not dry_run:
+        workdir = os.path.join(Configs.outdir, f'tmp{Configs.tmpfilenbr}')
+        try:
+            if not os.path.isdir(workdir):
+                os.makedirs(workdir)
+        except OSError:
+            log_exception(_LOG)
+    else:
+        workdir = os.getcwd()
 
     # (1) read in tree, alignment, and separate reference sequences from
     # query sequences
@@ -99,10 +102,15 @@ def clean_temp_files():
             continue
         _LOG.info(f'- Removed {temp}')
 
-def parseArguments():
+def parseArguments(dry_run=False):
     global _root_dir, main_config_path
+
     parser = _init_parser()
     cmdline_args = sys.argv[1:]
+
+    if dry_run:
+        cmdline_args = ['-i', 'dummy.info', '-t', 'dummy.tre',
+                '-a', 'dummy.fa'] 
     
     # build config
     buildConfigs(parser, cmdline_args)
