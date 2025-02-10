@@ -1,3 +1,6 @@
+# BSCAMPP v1.0.2
+1. Added SCAMPP funtionality and its binary executables.
+
 # BSCAMPP v1.0.1
 1. Bumped version to full release.
 2. Completed examples for display in `bscampp --help`.

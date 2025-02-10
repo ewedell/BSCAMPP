@@ -175,10 +175,14 @@ def clean_temp_files():
             continue
         _LOG.info(f'- Removed {temp}')
 
-def parseArguments(dry_run=False,method="BSCAMPP"):
+def parseArguments(dry_run=False, method="BSCAMPP"):
     global _root_dir, main_config_path
 
-    parser = _init_parser()
+    default_outdir = f"{method.lower()}_output"
+    default_outname = f"{method.lower()}_result"
+
+    parser = _init_parser(default_outdir=default_outdir,
+            default_outname=default_outname)
     cmdline_args = sys.argv[1:]
 
     if dry_run:
@@ -193,7 +197,8 @@ def parseArguments(dry_run=False,method="BSCAMPP"):
 
     return parser, cmdline_args
 
-def _init_parser():
+def _init_parser(default_outdir="bscampp_output",
+        default_outname="bscampp_result"):
     # example usage
     example_usages = '''Example usages:
 > (1) Default
@@ -262,10 +267,10 @@ def _init_parser():
                   required=False, default=None)
     basic_group.add_argument("-d", "--outdir", type=str,
                   help="Directory path for output. Default: bscampp_output/",
-                  required=False, default="bscampp_output")
+                  required=False, default=default_outdir)
     basic_group.add_argument("-o", "--output", type=str, dest="outname",
                   help="Output file name. Default: bscampp_result.jplace",
-                  required=False, default="bscampp_result.jplace")
+                  required=False, default=f"{default_outname}.jplace")
     basic_group.add_argument("--threads", "--num-cpus", type=int,
                   dest="num_cpus",
                   help="Number of cores for parallelization, default: -1 (all)",
@@ -307,7 +312,7 @@ def _init_parser():
                   help="If queries contains fragments. Default: True",
                   required=False, default=True)
     misc_group.add_argument("--subtreetype", type=str,
-                  help="Only applies to SCAMPP! Options for collecting "
+                  help="(SCAMPP only) Options for collecting "
                   "nodes for the subtree - d for edge weighted "
                   "distances, n for node distances, h for Hamming "
                   "distances. Default: d",

@@ -37,6 +37,8 @@ classifiers = [
 [project.scripts]
 bscampp = "bscampp.pipeline:bscampp_pipeline"
 "run_bscampp.py" = "bscampp.pipeline:bscampp_pipeline"
+scampp = "bscampp.pipeline:scampp_pipeline"
+"run_scampp.py" = "bscampp.pipeline:scampp_pipeline"
 
 [project.urls]
 Homepage = "https://github.com/ewedell/BSCAMPP"

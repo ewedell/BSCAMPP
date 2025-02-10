@@ -36,8 +36,12 @@ It is recommended that BSCAMPP be used with subtrees of size 2000 and with 5 vot
 are fragmentary. Defaults for the subtree size and number of votes are set to 2,000 and 5 respectively (see [Usage](#usage) for more details
 on customizing BSCAMPP).
 
+#### SCAMPP
+SCAMPP is also implemented in BSCAMPP. The user can invoke SCAMPP by running
+`run_scampp.py` or `scampp` (if installed with PyPI) after installation.
+
 # Installation
-BSCAMPP was tested on **Python 3.7 to 3.12**. There are two ways to install and use BSCAMPP: (1) with PyPI, or
+BSCAMPP was tested on **Python 3.8 to 3.12**. There are two ways to install and use BSCAMPP: (1) with PyPI, or
 (2) from this GitHub repository. If you have any difficulties installing or running BSCAMPP, please contact Eleanor Wedell
 (ewedell@illinois.edu).
 
@@ -53,12 +57,18 @@ The easiest way to install BSCAMPP is to use `pip install`. This will also insta
 # 1. install with pip (--user if no root access)
 pip install bscampp [--user]
 
-# 2. Two binary executables will be installed. The first time
+# 2. Four binary executables will be installed. The first time
 #    running any will create a config file at
 #    ~/.bscampp/main.config that resolves the links to all
 #    external software (e.g., epa-ng, pplacer)
+
+# ---- BSCAMPP functions
 bscampp [-h]    # or
 run_bscampp.py [-h]
+
+# ---- SCAMPP functions
+scampp  [-h]    # or
+run_scampp.py
 ```
 
 ### (2) Install from GitHub
@@ -170,14 +180,23 @@ run_bscampp.py -i [logfile from either RAxML/FastTree] -t [reference tree] \
 >                         Temporary file indexing. Default: 0
 >   --fragmentflag FRAGMENTFLAG
 >                         If queries contains fragments. Default: True
+>  --subtreetype SUBTREETYPE
+>                         (SCAMPP only) Options for collecting nodes for the
+>                         subtree - d for edge weighted distances, n for node
+>                         distances, h for Hamming distances. Default: d
 >   --keeptemp KEEPTEMP   Boolean, True to keep all temporary files. Default:
                         False
 ```
 
 
 # Example Code and Data
-Example script and data are provided in this GitHub repository in `examples/`. The data is originally from the [RNAsim-VS datasets](https://doi.org/10.1093/sysbio/syz063).
-* `examples/run.sh`: contains a simple script to test BSCAMPP with `epa-ng` or `pplacer`, placing 200 query sequences to a 10000-leaf placement tree.
-  The info file is from RAxML-ng when running `epa-ng`, and from FastTree-2 when running `pplacer`.
-  - `run.sh` will invoke BSCAMPP with `epa-ng`.
-  - `run.sh pplacer` will invoke BSCAMPP with `pplacer`.
+Example script and data are provided in this GitHub repository in `examples/`.
+The data is originally from the
+[RNAsim-VS datasets](https://doi.org/10.1093/sysbio/syz063).
+* `examples/run_bscampp.sh`: contains a simple script to test BSCAMPP with
+  `epa-ng` or `pplacer`, placing 200 query sequences to a 10000-leaf placement
+  tree. The info file is from RAxML-ng when running `epa-ng`, and from
+  FastTree-2 when running `pplacer`.
+  - `run_bscampp.sh` will invoke BSCAMPP with `epa-ng`.
+  - `run_bscampp.sh pplacer` will invoke BSCAMPP with `pplacer`.
+* `examples/run_scampp.sh`: the same test script but running SCAMPP.
