@@ -71,6 +71,9 @@ def getClosestLeaves(aln_path, qaln_path, aln, qaln, workdir, dry_run=False):
     query_votes_dict = dict()
     query_top_vote_dict = dict()
     tmp_output = os.path.join(workdir, 'closest.txt') 
+    
+    if Configs.subtreetype == "h":
+        Configs.votes = Configs.subtreesize
 
     cmd = []
     if Configs.similarityflag:
@@ -225,6 +228,51 @@ def assignQueriesToSubtrees(query_votes_dict, query_top_vote_dict,
     t1 = time.perf_counter()
     _LOG.info('Time to assign queries to subtrees: {} seconds'.format(t1 - t0))
     return new_subtree_dict, placed_query_list
+
+
+'''
+Function to assign queries to subtrees as used in SCAMPP 
+(subtrees are built using the nearest leaf as the seed sequence)
+'''
+def buildQuerySubtrees(query_votes_dict, query_top_vote_dict,
+        tree, leaf_dict, dry_run=False):
+    t0 = time.perf_counter()
+
+    if dry_run:
+        return dict(), []
+
+    # (1) go over the query seed sequences to see if any queries use 
+    # the same seed sequence (i.e. subtree)
+    seed_queries = dict()
+    for query, closest_leaf in query_top_vote_dict.items():
+        if closest_leaf not in seed_queries:           
+            seed_queries[closest_leaf] = [query]
+        else:
+            seed_queries[closest_leaf].append(query)
+
+    new_subtree_dict = dict()
+    # assign queries to subtrees, and remove them from the pool
+    # repeat until all queries are assigned
+    for seed_label, queries in seed_queries.items():
+        node_y = leaf_dict[seed_label]
+        # extract [subtreesize] leaves
+        if Configs.subtreetype == "h":
+            labels = query_votes_dict[queries[0]]
+        elif Configs.subtreetype == "n":
+            labels = utils.subtree_nodes(tree, node_y, Configs.subtreesize)
+        else:
+            labels = utils.subtree_nodes_with_edge_length(tree, node_y,
+                Configs.subtreesize)
+        subtree = tree.extract_tree_with(labels)
+        new_subtree_dict[subtree] = queries
+
+            
+    placed_query_list = []
+    
+    t1 = time.perf_counter()
+    _LOG.info('Time to assign queries to subtrees: {} seconds'.format(t1 - t0))
+    return new_subtree_dict, placed_query_list
+
 
 '''
 Helper function to run a single placement task. Designed to use with

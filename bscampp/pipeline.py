@@ -89,6 +89,79 @@ def bscampp_pipeline(*args, **kwargs):
     else:
         return False
 
+
+# main pipeline for SCAMPP
+def scampp_pipeline(*args, **kwargs):
+    t0 = time.perf_counter()
+    m = Manager(); lock = m.Lock()
+
+    # set up a dry run if specified
+    dry_run = False
+    if 'dry_run' in kwargs and isinstance(kwargs['dry_run'], bool):
+        dry_run = kwargs['dry_run']
+
+    # parse command line arguments and build configurations
+    parser, cmdline_args = parseArguments(dry_run=dry_run, method="SCAMPP")
+
+    # initialize multiprocessing (if needed)
+    _LOG.warning('Initializing ProcessPoolExecutor...')
+    pool = ProcessPoolExecutor(Configs.num_cpus, initializer=initial_pool,
+            initargs=(parser, cmdline_args,))
+
+    # (0) temporary files wrote to here
+    if not dry_run:
+        workdir = os.path.join(Configs.outdir, f'tmp{Configs.tmpfilenbr}')
+        try:
+            if not os.path.isdir(workdir):
+                os.makedirs(workdir)
+        except OSError:
+            log_exception(_LOG)
+    else:
+        workdir = os.getcwd()
+
+    # (1) read in tree, alignment, and separate reference sequences from
+    # query sequences
+    tree, leaf_dict, aln_path, aln, qaln_path, qaln = readData(workdir,
+            dry_run=dry_run)
+
+    # (2) compute closest leaves for all query sequences
+    query_votes_dict, query_top_vote_dict = getClosestLeaves(
+            aln_path, qaln_path, aln, qaln, workdir, dry_run=dry_run)
+
+    # (3) first assign each query to the subtree built using the closest 
+    # leaf as the seed sequence 
+    new_subtree_dict, placed_query_list = buildQuerySubtrees(
+            query_votes_dict, query_top_vote_dict, tree, leaf_dict,
+            dry_run=dry_run)
+
+    # (4) perform placement for each subtree
+    output_jplace = placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict,
+            placed_query_list, aln, qaln, cmdline_args, workdir, pool, lock,
+            dry_run=dry_run)
+
+    # (5) write the output jplace to local
+    writeOutputJplace(output_jplace, dry_run=dry_run)
+
+    # shutdown pool
+    _LOG.warning('Shutting down ProcessPoolExecutor...')
+    pool.shutdown()
+    _LOG.warning('ProcessPoolExecutor shut down.')
+    
+    # clean up temp files if not keeping
+    if not Configs.keeptemp:
+        _LOG.info('Removing temporary files...')
+        clean_temp_files()
+
+    # stop SCAMPP 
+    send = time.perf_counter()
+    _LOG.info('SCAMPP completed in {} seconds...'.format(send - t0))
+
+    if dry_run:
+        return True
+    else:
+        return False
+
+
 def clean_temp_files():
     # all temporary files/directories to remove
     temp_items = [f'tmp{Configs.tmpfilenbr}']
@@ -102,7 +175,7 @@ def clean_temp_files():
             continue
         _LOG.info(f'- Removed {temp}')
 
-def parseArguments(dry_run=False):
+def parseArguments(dry_run=False,method="BSCAMPP"):
     global _root_dir, main_config_path
 
     parser = _init_parser()
@@ -114,7 +187,7 @@ def parseArguments(dry_run=False):
     
     # build config
     buildConfigs(parser, cmdline_args)
-    _LOG.info('BSCAMPP is running with: {}'.format(
+    _LOG.info('{} is running with: {}'.format(method,
         ' '.join(cmdline_args)))
     getConfigs()
 
@@ -133,7 +206,7 @@ def _init_parser():
 
     parser = ArgumentParser(
             description=(
-                "This program runs BSCAMPP, a scalable phylogenetic "
+                "This program runs BSCAMPP/SCAMPP, a scalable phylogenetic "
                 "placement framework that scales EPA-ng/pplacer "
                 "to very large tree placement."
                 ),
@@ -160,7 +233,7 @@ def _init_parser():
     # basic group
     basic_group = parser.add_argument_group(
             "Basic parameters".upper(),
-            "These are the basic parameters for BSCAMPP.")
+            "These are the basic parameters for BSCAMPP/SCAMPP.")
     parser.groups['basic_group'] = basic_group
 
     basic_group.add_argument('--placement-method', type=str,
@@ -213,7 +286,8 @@ def _init_parser():
                   help="Integer size of the subtree. Default: 2000",
                   required=False, default=2000)
     advance_group.add_argument("-V", "--votes", type=int,
-                  help="Number of votes per query sequence. Default: 5",
+                  help="This is only used for BSCAMPP! Number of votes per "
+                  "query sequence. Default: 5",
                   required=False, default=5)
     advance_group.add_argument("--similarityflag", type=str2bool,
                   help="Boolean, True if maximizing sequence similarity "
@@ -232,6 +306,12 @@ def _init_parser():
     misc_group.add_argument("--fragmentflag", type=str2bool,
                   help="If queries contains fragments. Default: True",
                   required=False, default=True)
+    misc_group.add_argument("--subtreetype", type=str,
+                  help="Only applies to SCAMPP! Options for collecting "
+                  "nodes for the subtree - d for edge weighted "
+                  "distances, n for node distances, h for Hamming "
+                  "distances. Default: d",
+                  required=False, default='d')
     misc_group.add_argument("--keeptemp", type=str2bool,
                   help="Boolean, True to keep all temporary files. "
                   "Default: False",

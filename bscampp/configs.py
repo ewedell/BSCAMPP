@@ -50,6 +50,7 @@ class Configs:
     # miscellaneous
     tmpfilenbr = 0
     fragmentflag = True
+    subtreetype = 'd'
 
 # check if the given configuration is valid to add
 def set_valid_configuration(name, conf):
