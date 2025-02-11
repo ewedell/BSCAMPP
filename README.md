@@ -18,7 +18,7 @@
   3. Alignment of query sequences (can be combined with ii.).
   4. Tree info file.
      - (EPA-ng as base method), RAxML-ng info file, typically with suffix `.bestModel`.
-     - (pplacer as base method), RAxML-ng or FastTree log file.
+     - (pplacer as base method), RAxML-ng or FastTree log file containing model parameters.
 * **Output**
   1. Placement results of query sequences in the reference tree in `.jplace` format.
 
@@ -46,9 +46,12 @@ BSCAMPP was tested on **Python 3.8 to 3.12**. There are two ways to install and 
 (ewedell@illinois.edu).
 
 ### External requirements
-EPA-ng and/or pplacer are requirements to run BSCAMPP since BSCAMPP will use them as the base phylogenetic placement methods.
-By default, BSCAMPP will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
-We also included a compiled version of `pplacer` for the Linux system under `bscampp/tools`.
+* **Base placement method**:
+  EPA-ng and/or pplacer are requirements to run BSCAMPP since BSCAMPP will use them as the base phylogenetic placement methods.
+  By default, BSCAMPP will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
+  We also included a compiled version of `pplacer` for the Linux system under `bscampp/tools`.
+* **C++ OpenMP**:
+  We also use OpenMP to speed up the similarity comparison between sequences using C++, which is required to run the pre-compiled binaries.
 
 ### (1) Install with `pip`
 The easiest way to install BSCAMPP is to use `pip install`. This will also install all required Python packages.
