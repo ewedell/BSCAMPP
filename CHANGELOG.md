@@ -1,3 +1,6 @@
+# BSCAMPP v1.0.2b
+1. Removed redundant dependency in `bscampp/jobs.py`.
+
 # BSCAMPP v1.0.2
 1. Added SCAMPP funtionality and its binary executables.
 

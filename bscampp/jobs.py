@@ -3,7 +3,7 @@ from subprocess import Popen
 from abc import abstractmethod
 
 from bscampp import get_logger, log_exception
-from bscampp.configs import Configs
+#from bscampp.configs import Configs
 
 _LOG = get_logger(__name__)
 
