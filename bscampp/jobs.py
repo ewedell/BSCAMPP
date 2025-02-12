@@ -67,7 +67,7 @@ class Job(object):
                 # it is not needed
                 p = Popen(cmd, text=True, bufsize=1,
                         stdin=subprocess.PIPE,
-                        stdout=outlogging, stderr=subprocess.PIPE)
+                        stdout=outlogging, stderr=outlogging)
                 self.pid = p.pid
                 stdout, stderr = p.communicate(input=stdin)
                 outlogging.close()
@@ -93,16 +93,22 @@ class Job(object):
             else:
                 error_msg = ' '.join([f'Error occurred running {self.job_type}.',
                     f'returncode: {self.returncode}'])
+                if logging != None:
+                    logpath = '\nLOGPATH: ' + os.path.join(
+                            os.path.dirname(outpath),
+                            f'{logging}_{self.job_type}.txt')
+                else:
+                    logpath = ''
                 if lock:
                     try:
                         lock.acquire()
                         _LOG.error(error_msg + '\nSTDOUT: ' + stdout +
-                                '\nSTDERR: ' + stderr)
+                                '\nSTDERR: ' + stderr + logpath)
                     finally:
                         lock.release()
                 else:
                     _LOG.error(error_msg + '\nSTDOUT: ' + stdout +
-                            '\nSTDERR: ' + stderr)
+                            '\nSTDERR: ' + stderr + logpath)
                 exit(1)
         except Exception:
             log_exception(_LOG)
