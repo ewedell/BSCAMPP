@@ -237,6 +237,7 @@ Function to assign queries to subtrees as used in SCAMPP
 def buildQuerySubtrees(query_votes_dict, query_top_vote_dict,
         tree, leaf_dict, dry_run=False):
     t0 = time.perf_counter()
+    _LOG.info('(SCAMPP) Building query subtree for placement...')
 
     if dry_run:
         return dict(), []
@@ -266,13 +267,11 @@ def buildQuerySubtrees(query_votes_dict, query_top_vote_dict,
         subtree = tree.extract_tree_with(labels)
         new_subtree_dict[subtree] = queries
 
-            
     placed_query_list = []
-    
+
     t1 = time.perf_counter()
     _LOG.info('Time to assign queries to subtrees: {} seconds'.format(t1 - t0))
     return new_subtree_dict, placed_query_list
-
 
 '''
 Helper function to run a single placement task. Designed to use with

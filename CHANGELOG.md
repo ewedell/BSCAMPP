@@ -1,5 +1,8 @@
 # BSCAMPP v1.0.2b
 1. Removed redundant dependency in `bscampp/jobs.py`.
+2. Added logging to each placement subtask with the base method.
+3. Changed the temporary file writing directory from a single directory, to
+their corresponding directories.
 
 # BSCAMPP v1.0.2
 1. Added SCAMPP funtionality and its binary executables.
