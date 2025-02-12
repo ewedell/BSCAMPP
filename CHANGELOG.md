@@ -1,3 +1,6 @@
+# BSCAMPP v1.0.4a
+1. Added distinguishment for nucleotide and protein sequences.
+
 # BSCAMPP v1.0.3
 1. Version bump to avoid the entire "pre-release" tag with beta versions.
 

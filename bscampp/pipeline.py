@@ -265,6 +265,11 @@ def _init_parser(default_outdir="bscampp_output",
                   help=("Optionally provide path to query sequence alignment "
                   "in FASTA format. Default: None"),
                   required=False, default=None)
+    basic_group.add_argument("--molecule", type=str,
+                  choices=['nucl', 'nucleotide', 'prot', 'protein'],
+                  help=("Specify nucleotide or protein sequences. "
+                  "Default: infer datatype"),
+                  required=False, default=None)
     basic_group.add_argument("-d", "--outdir", type=str,
                   help="Directory path for output. Default: bscampp_output/",
                   required=False, default=default_outdir)
@@ -285,8 +290,10 @@ def _init_parser(default_outdir="bscampp_output",
     parser.groups['advance_group'] = advance_group
 
     advance_group.add_argument("-m", "--model", type=str,
-                  help="Model used for edge distances. Default: GTR",
-                  required=False, default="GTR")
+                  help=("Model used for edge distances. EPA-ng will use the "
+                  "provided info_path (*.bestModel) for model. "
+                  "Default: GTR for nucleotide, LG for protein"),
+                  required=False, default=None)
     advance_group.add_argument("-b", "--subtreesize", type=int,
                   help="Integer size of the subtree. Default: 2000",
                   required=False, default=2000)

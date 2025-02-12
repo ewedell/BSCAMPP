@@ -350,6 +350,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                     info_path=Configs.info_path, tree_path=tmp_tree,
                     aln_path=tmp_aln, qaln_path=tmp_qaln,
                     outdir=subtree_dir, num_cpus=Configs.num_cpus)
+                    #molecule=Configs.molecule, model=Configs.model,
             # for EPA-ng, ensure that outpath name is changed to the one we want
             _outpath = job.run(logging=f'subtree_{final_subtree_count}')
             os.system('mv {} {}'.format(_outpath, tmp_output))
@@ -365,7 +366,8 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
 
             # run pplacer-taxtastic
             job = PplacerTaxtasticJob(path=Configs.pplacer_path,
-                    refpkg_dir=refpkg_dir, model=Configs.model,
+                    refpkg_dir=refpkg_dir,
+                    molecule=Configs.molecule, model=Configs.model,
                     outpath=tmp_output, num_cpus=Configs.num_cpus,
                     qaln_path=tmp_qaln)
             tmp_output = job.run(logging=f'subtree_{final_subtree_count}')

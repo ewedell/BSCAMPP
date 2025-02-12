@@ -9,8 +9,11 @@ import random
 import statistics
 import copy
 import gzip
-
 import argparse
+
+from bscampp import get_logger, log_exception
+_LOG = get_logger(__name__)
+
 # reformat argparse help text formatting
 class SmartHelpFormatter(argparse.RawDescriptionHelpFormatter):
     def add_text(self, text):
@@ -35,6 +38,34 @@ BRACKET = {
     '"': '"', # double-quote
 }
 
+
+# infer datatype from input file
+def inferDataType(path):
+    sequences = read_data(path)
+    acg, t, u, total = 0, 0, 0, 0
+    for taxon, seq in sequences.items():
+        letters = seq.upper()
+        for letter in letters:
+            total = total + 1
+
+            if letter in ('A', 'C', 'G', 'N'):
+                acg += 1
+            elif letter == 'T':
+                t += 1
+            elif letter == 'U':
+                u += 1
+    # dna -> nucleotide
+    if u == 0 and (acg + t) / total > 0.9:
+        datatype = 'nucleotide'
+    # rna -> nucleotide
+    elif t == 0 and (acg + u) / total > 0.9:
+        datatype = 'nucleotide'
+    # amino acid -> protein
+    else:
+        datatype = 'protein'
+
+    _LOG.info(f"Inferred input data type: {datatype}")
+    return datatype
 
 def write_fasta(aln, aln_dict, aligned=True):
     """ Write given dictionary as FASTA file out

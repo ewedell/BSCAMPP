@@ -137,6 +137,8 @@ class EPAngJob(Job):
         self.aln_path = ''
         self.qaln_path = ''
         self.outdir = ''
+        #self.molecule = ''
+        #self.model = ''
         self.num_cpus = 1
 
         for k, v in kwargs.items():
@@ -202,7 +204,8 @@ class PplacerTaxtasticJob(Job):
 
     def get_invocation(self):
         # outpath defined 
-        cmd = [self.path, '-m', self.model,
+        cmd = [self.path,
+                #'-m', self.model,
                 '-c', self.refpkg_dir, '-o', self.outpath,
                 '-j', str(self.num_cpus), self.qaln_path]
         return cmd, self.outpath
