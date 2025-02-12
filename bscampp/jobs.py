@@ -70,6 +70,9 @@ class Job(object):
                         stdout=outlogging, stderr=outlogging)
                 self.pid = p.pid
                 stdout, stderr = p.communicate(input=stdin)
+                # stdout and stderr are both written to outlogging
+                # hence, assign them to be empty strings
+                stdout, stderr = '', ''
                 outlogging.close()
             else:
                 p = Popen(cmd, text=True, bufsize=1,

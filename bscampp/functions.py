@@ -254,7 +254,13 @@ def buildQuerySubtrees(query_votes_dict, query_top_vote_dict,
     new_subtree_dict = dict()
     # assign queries to subtrees, and remove them from the pool
     # repeat until all queries are assigned
+    _total = 0
     for seed_label, queries in seed_queries.items():
+        ####### additional logging for tracking progress 
+        _total += 1
+        if _total % 1000 == 0 or _total == len(seed_queries):
+            _LOG.info(f"- Built {_total}/{len(seed_queries)} subtrees")
+
         node_y = leaf_dict[seed_label]
         # extract [subtreesize] leaves
         if Configs.subtreetype == "h":
