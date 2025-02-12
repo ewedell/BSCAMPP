@@ -1,3 +1,6 @@
+# BSCAMPP v1.0.3
+1. Version bump to avoid the entire "pre-release" tag with beta versions.
+
 # BSCAMPP v1.0.2b
 1. Removed redundant dependency in `bscampp/jobs.py`.
 2. Added logging to each placement subtask with the base method.

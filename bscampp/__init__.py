@@ -12,7 +12,7 @@ import logging, os
 # not really needed for BSCAMPP but safe to update here
 os.sys.setrecursionlimit(1000000)
 
-__version__ = "1.0.2b"
+__version__ = "1.0.3"
 _INSTALL_PATH = __path__[0]
 
 # global variables to store all loggers
