@@ -25,7 +25,7 @@ class Job(object):
         return self.pid
 
     # run the job with given invocation and raise errors when encountered
-    def run(self, stdin="", lock=None, logging=False, shell=False):
+    def run(self, stdin="", lock=None, logging=None, shell=False):
         try:
             cmd, outpath = self.get_invocation()
             _LOG.debug(f'Running job_type: {self.job_type}, output: {outpath}')
@@ -57,9 +57,10 @@ class Job(object):
             # logging to local or to PIPE
             stderr, stdout = '', ''
             scmd = ' '.join(cmd)
-            if logging:
+            if logging != None:
                 logpath = os.path.join(
-                        os.path.dirname(outpath), 'f{self.job_type}.txt')
+                        os.path.dirname(outpath),
+                        f'{logging}_{self.job_type}.txt')
                 outlogging = open(logpath, 'w', 1)
 
                 # TODO: may need to deal with piping in the future, for now
@@ -177,7 +178,7 @@ A pplacer job that uses taxtastic refpkg to place sequences
 class PplacerTaxtasticJob(Job):
     def __init__(self, **kwargs):
         Job.__init__(self)
-        self.job_type = 'pplacer-taxtastic'
+        self.job_type = 'pplacer'
 
         self.path = ''
         self.refpkg_dir = ''

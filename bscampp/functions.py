@@ -311,12 +311,16 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         if len(query_list) == 0:
             continue
         final_subtree_count += 1
+
+        subtree_dir = os.path.join(workdir, f'subtree_{final_subtree_count}')
+        if not os.path.isdir(subtree_dir):
+            os.makedirs(subtree_dir)
         
         # name all temporary output files
-        tmp_tree = os.path.join(workdir, 'tree')
-        tmp_aln = os.path.join(workdir, f'subtree_{final_subtree_count}_aln.fa')
-        tmp_qaln = os.path.join(workdir, f'subtree_{final_subtree_count}_qaln.fa')
-        tmp_output = os.path.join(workdir,
+        tmp_tree = os.path.join(subtree_dir, 'tree')
+        tmp_aln = os.path.join(subtree_dir, f'subtree_{final_subtree_count}_aln.fa')
+        tmp_qaln = os.path.join(subtree_dir, f'subtree_{final_subtree_count}_qaln.fa')
+        tmp_output = os.path.join(subtree_dir,
                 'subtree_{}_{}.jplace'.format(
                     final_subtree_count, Configs.placement_method))
 
@@ -340,13 +344,13 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
             job = EPAngJob(path=Configs.epang_path,
                     info_path=Configs.info_path, tree_path=tmp_tree,
                     aln_path=tmp_aln, qaln_path=tmp_qaln,
-                    outdir=workdir, num_cpus=Configs.num_cpus)
+                    outdir=subtree_dir, num_cpus=Configs.num_cpus)
             # for EPA-ng, ensure that outpath name is changed to the one we want
-            _outpath = job.run()
+            _outpath = job.run(logging=f'subtree_{final_subtree_count}')
             os.system('mv {} {}'.format(_outpath, tmp_output))
         elif Configs.placement_method == 'pplacer':
             # build ref_pkg with info and tmp_tree and tmp_aln
-            refpkg_dir = os.path.join(workdir,
+            refpkg_dir = os.path.join(subtree_dir,
                     f'subtree_{final_subtree_count}.refpkg')
             taxit_job = TaxtasticJob(path=Configs.taxit_path,
                     outdir=refpkg_dir, name=f'subtree_{final_subtree_count}',
@@ -359,7 +363,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                     refpkg_dir=refpkg_dir, model=Configs.model,
                     outpath=tmp_output, num_cpus=Configs.num_cpus,
                     qaln_path=tmp_qaln)
-            tmp_output = job.run()
+            tmp_output = job.run(logging=f'subtree_{final_subtree_count}')
         else:
             raise ValueError(
                     f"Placement method {Configs.placement_method} not recognized")
