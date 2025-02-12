@@ -265,11 +265,11 @@ def _init_parser(default_outdir="bscampp_output",
                   help=("Optionally provide path to query sequence alignment "
                   "in FASTA format. Default: None"),
                   required=False, default=None)
-    basic_group.add_argument("--molecule", type=str,
-                  choices=['nucl', 'nucleotide', 'prot', 'protein'],
-                  help=("Specify nucleotide or protein sequences. "
-                  "Default: infer datatype"),
-                  required=False, default=None)
+    #basic_group.add_argument("--molecule", type=str,
+    #              choices=['nucl', 'nucleotide', 'prot', 'protein'],
+    #              help=("Specify nucleotide or protein sequences. "
+    #              "Default: infer datatype"),
+    #              required=False, default=None)
     basic_group.add_argument("-d", "--outdir", type=str,
                   help="Directory path for output. Default: bscampp_output/",
                   required=False, default=default_outdir)
@@ -289,18 +289,24 @@ def _init_parser(default_outdir="bscampp_output",
              ))
     parser.groups['advance_group'] = advance_group
 
-    advance_group.add_argument("-m", "--model", type=str,
-                  help=("Model used for edge distances. EPA-ng will use the "
-                  "provided info_path (*.bestModel) for model. "
-                  "Default: GTR for nucleotide, LG for protein"),
-                  required=False, default=None)
+    #advance_group.add_argument("-m", "--model", type=str,
+    #              help=("Model used for edge distances. EPA-ng will use the "
+    #              "provided info_path (*.bestModel) for model. "
+    #              "Default: GTR for nucleotide, LG for protein"),
+    #              required=False, default=None)
     advance_group.add_argument("-b", "--subtreesize", type=int,
                   help="Integer size of the subtree. Default: 2000",
                   required=False, default=2000)
     advance_group.add_argument("-V", "--votes", type=int,
-                  help="This is only used for BSCAMPP! Number of votes per "
-                  "query sequence. Default: 5",
+                  help="(BSCAMPP only) Number of votes per query sequence. "
+                  "Default: 5",
                   required=False, default=5)
+    advance_group.add_argument("--subtreetype", type=str,
+                  help="(SCAMPP only) Options for collecting "
+                  "nodes for the subtree - d for edge weighted "
+                  "distances, n for node distances, h for Hamming "
+                  "distances. Default: d",
+                  required=False, default='d')
     advance_group.add_argument("--similarityflag", type=str2bool,
                   help="Boolean, True if maximizing sequence similarity "
                   "instead of simple Hamming distance (ignoring gap "
@@ -313,17 +319,12 @@ def _init_parser(default_outdir="bscampp_output",
     parser.groups['misc_group'] = misc_group
 
     misc_group.add_argument("-n","--tmpfilenbr", type=int,
-                  help="Temporary file indexing. Default: 0",
+                  help="Temporary file indexing (e.g., tmp0/). Default: 0",
                   required=False, default=0)
     misc_group.add_argument("--fragmentflag", type=str2bool,
-                  help="If queries contains fragments. Default: True",
+                  help="If queries contains fragments. Does not do anything "
+                  "if similarity flag is set to True. Default: True",
                   required=False, default=True)
-    misc_group.add_argument("--subtreetype", type=str,
-                  help="(SCAMPP only) Options for collecting "
-                  "nodes for the subtree - d for edge weighted "
-                  "distances, n for node distances, h for Hamming "
-                  "distances. Default: d",
-                  required=False, default='d')
     misc_group.add_argument("--keeptemp", type=str2bool,
                   help="Boolean, True to keep all temporary files. "
                   "Default: False",

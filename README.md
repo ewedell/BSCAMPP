@@ -14,7 +14,7 @@
 # Overview
 * **Inputs**
   1. Reference tree to place sequences into.
-  2. Alignment of reference sequences.
+  2. Alignment of reference sequences (protein or nucleotide).
   3. Alignment of query sequences (can be combined with ii.).
   4. Tree info file.
      - (EPA-ng as base method), RAxML-ng info file, typically with suffix `.bestModel`.
@@ -180,14 +180,13 @@ run_bscampp.py -i [raxml best model] -t [reference tree] -a [reference alignment
 >                         Number of cores for parallelization, default: -1 (all)
 > 
 > ADVANCE PARAMETERS:
->   These parameters control how BSCAMPP is run. The default values are set based on experiments.
+>   These parameters control how BSCAMPP and SCAMPP are run. The default values are set based on experiments.
 > 
->   -m MODEL, --model MODEL
->                         Model used for edge distances. Default: GTR
 >   -b SUBTREESIZE, --subtreesize SUBTREESIZE
 >                         Integer size of the subtree. Default: 2000
 >   -V VOTES, --votes VOTES
->                         Number of votes per query sequence. Default: 5
+>                         (BSCAMPP only) Number of votes per query sequence.
+>                         Default: 5
 >   --similarityflag SIMILARITYFLAG
 >                         Boolean, True if maximizing sequence similarity
 >                         instead of simple Hamming distance (ignoring gap sites

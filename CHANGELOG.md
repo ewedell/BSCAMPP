@@ -1,5 +1,8 @@
 # BSCAMPP v1.0.4a
-1. Added distinguishment for nucleotide and protein sequences.
+1. Removed redundant parameter `--model` since the user-provided info file
+is sufficient to run `pplacer` or `epa-ng`. Also this means that it is
+not needed to distinguish between nucleotide/protein sequences as long as
+the user provides the files correctly.
 
 # BSCAMPP v1.0.3
 1. Version bump to avoid the entire "pre-release" tag with beta versions.

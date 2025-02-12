@@ -315,14 +315,13 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         # empty subtree, continue
         if len(query_list) == 0:
             continue
-        final_subtree_count += 1
 
         subtree_dir = os.path.join(workdir, f'subtree_{final_subtree_count}')
         if not os.path.isdir(subtree_dir):
             os.makedirs(subtree_dir)
         
         # name all temporary output files
-        tmp_tree = os.path.join(subtree_dir, 'tree')
+        tmp_tree = os.path.join(subtree_dir, f'subtree_{final_subtree_count}.tre')
         tmp_aln = os.path.join(subtree_dir, f'subtree_{final_subtree_count}_aln.fa')
         tmp_qaln = os.path.join(subtree_dir, f'subtree_{final_subtree_count}_qaln.fa')
         tmp_output = os.path.join(subtree_dir,
@@ -348,9 +347,9 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         if Configs.placement_method == 'epa-ng':
             job = EPAngJob(path=Configs.epang_path,
                     info_path=Configs.info_path, tree_path=tmp_tree,
+                    #molecule=Configs.molecule, model=Configs.model,
                     aln_path=tmp_aln, qaln_path=tmp_qaln,
                     outdir=subtree_dir, num_cpus=Configs.num_cpus)
-                    #molecule=Configs.molecule, model=Configs.model,
             # for EPA-ng, ensure that outpath name is changed to the one we want
             _outpath = job.run(logging=f'subtree_{final_subtree_count}')
             os.system('mv {} {}'.format(_outpath, tmp_output))
@@ -367,7 +366,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
             # run pplacer-taxtastic
             job = PplacerTaxtasticJob(path=Configs.pplacer_path,
                     refpkg_dir=refpkg_dir,
-                    molecule=Configs.molecule, model=Configs.model,
+                    #molecule=Configs.molecule, model=Configs.model,
                     outpath=tmp_output, num_cpus=Configs.num_cpus,
                     qaln_path=tmp_qaln)
             tmp_output = job.run(logging=f'subtree_{final_subtree_count}')
@@ -435,7 +434,10 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                             int(target_edge_nbr)
 
                 placements.append(tmp_place.copy())
+        # increment final_subtree_count
+        final_subtree_count += 1
         place_file.close()
+
     _LOG.info(f'Final number of subtrees used: {final_subtree_count}')
 
     # prepare the output jplace to write

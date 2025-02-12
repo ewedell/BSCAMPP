@@ -196,7 +196,7 @@ class PplacerTaxtasticJob(Job):
         self.qaln_path = ''
         self.outdir = ''
         self.outpath = ''
-        self.model = 'GTR'
+        #self.model = 'GTR'
         self.num_cpus = 1
 
         for k, v in kwargs.items():

@@ -6,7 +6,7 @@ except ImportError:
 from argparse import ArgumentParser, Namespace
 from bscampp.init_configs import init_config_file
 from bscampp import get_logger, log_exception
-from bscampp.utils import inferDataType
+#from bscampp.utils import inferDataType
 
 # detect home.path or create if missing
 homepath = os.path.dirname(__file__) + '/home.path'
@@ -43,8 +43,6 @@ class Configs:
 
     # placement settings
     placement_method = 'epa-ng'
-    molecule = 'nucl'   # default to use nucl and GTR model
-    model = 'GTR'
     subtreesize = 2000
     votes = 5
     similarityflag = True
@@ -159,18 +157,18 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
     if Configs.outname.split('.')[-1].lower() != 'jplace':
         Configs.outname += '.jplace'
 
-    # modify model to use based on the datatype
-    if Configs.molecule is None:
-        Configs.molecule = inferDataType(Configs.aln_path)
-    # nucleotide --> GTR
-    if Configs.molecule.startswith('nucl'):
-        Configs.model = 'GTR'
-    # protein --> LG
-    elif Configs.molecule.startswith('prot'):
-        Configs.model = 'LG'
-    # specified by users, override default
-    if args.model is not None:
-        Configs.model = args.model
+    ## modify model to use based on the datatype
+    #if Configs.molecule is None:
+    #    Configs.molecule = inferDataType(Configs.aln_path)
+    ## nucleotide --> GTR
+    #if Configs.molecule.startswith('nucl'):
+    #    Configs.model = 'GTR'
+    ## protein --> LG
+    #elif Configs.molecule.startswith('prot'):
+    #    Configs.model = 'LG'
+    ## specified by users, override default
+    #if args.model is not None:
+    #    Configs.model = args.model
 
     # modify num_cpus if it is the default value
     if Configs.num_cpus > 0:

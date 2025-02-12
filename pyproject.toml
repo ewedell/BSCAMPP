@@ -8,7 +8,7 @@ packages = ["bscampp", "bscampp.tools"]
 [project]
 name = "bscampp"
 dynamic = ["version", "dependencies"]
-description = "BSCAMPP - A Scalable Phylogenetic Placement Tool"
+description = "BSCAMPP and SCAMPP - Scalable Phylogenetic Placement Tools"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
         {name = "Eleanor Wedell", email = "ewedell2@illinois.edu"},
