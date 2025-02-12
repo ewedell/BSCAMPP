@@ -1,4 +1,4 @@
-# BSCAMPP - A Scalable Phylogenetic Placement Method and Framework
+# BSCAMPP and SCAMPP - Two Scalable Phylogenetic Placement Methods and Frameworks
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bscampp)](https://pypi.org/project/bscampp/)
 [![PyPI - Version](https://img.shields.io/pypi/v/bscampp?color=blue)](https://pypi.org/project/bscampp/#history)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/ewedell/BSCAMPP/python-package.yml?branch=main&label=build)](https://github.com/ewedell/BSCAMPP/)
@@ -23,38 +23,41 @@
   1. Placement results of query sequences in the reference tree in `.jplace` format.
 
 
-BSCAMPP is an extension and scalable solution to its previous method [SCAMPP](https://github.com/chry04/PLUSplacer) for phylogenetic placement.
-BSCAMPP achieves some magnitudes of speedup compared to the SCAMPP framework.
+SCAMPP and BSCAMPP are two scalable solutions for phylogenetic placement. SCAMPP is designed more for accuracy
+and BSCAMPP is designed more for speed. BSCAMPP achieves some magnitudes of speedup compared to SCAMPP.
 The core algorithm is described in detail at <https://doi.org/10.1101/2022.10.26.513936>.
-In short, BSCAMPP in default uses EPA-ng as the base placement method, allowing it to scale to placement trees of up to ~200,000 leaves.
-BSCAMPP achieves this by extracting appropriate subtrees and assigning each query to its most fitting subtree.
+In short, Both frameworks in default use EPA-ng as the base placement method, allowing it to scale to placement trees
+of at least ~200,000 leaves. Our two methods achieve this by extracting appropriate subtrees and assigning each query
+to its most fitting subtree.
 
-BSCAMPP essentially is a divide-and-conquer framework and can be used with any base placement methods (e.g., `pplacer` as well).
-Currently, BSCAMPP is implemented with `epa-ng` and `pplacer`.
+They are divide-and-conquer frameworks and can be used with any base placement methods (e.g., `pplacer` as well).
+Currently, BSCAMPP and SCAMPP are implemented with `epa-ng` and `pplacer`.
 
-It is recommended that BSCAMPP be used with subtrees of size 2000 and with 5 votes based on current best results, especially if sequences
-are fragmentary. Defaults for the subtree size and number of votes are set to 2,000 and 5 respectively (see [Usage](#usage) for more details
-on customizing BSCAMPP).
+#### BSCAMPP
+It is recommended that BSCAMPP be used with subtrees of size 2000 and with 5 votes based on current best results,
+especially if sequences are fragmentary. Defaults for the subtree size and number of votes are set to 2,000 and
+5 respectively (see [Usage](#usage) for more details on customizing BSCAMPP).
 
 #### SCAMPP
-SCAMPP is also implemented in BSCAMPP. The user can invoke SCAMPP by running
-`run_scampp.py` or `scampp` (if installed with PyPI) after installation.
+SCAMPP is also implemented in BSCAMPP, originally from <https://github.com/chry04/PLUSplacer>.
+Its default also uses EPA-ng and a subtree size of 2,000.
+The user can invoke SCAMPP by running `run_scampp.py` or `scampp` (if installed with PyPI) after installation.
 
 # Installation
-BSCAMPP was tested on **Python 3.8 to 3.12**. There are two ways to install and use BSCAMPP: (1) with PyPI, or
-(2) from this GitHub repository. If you have any difficulties installing or running BSCAMPP, please contact Eleanor Wedell
-(ewedell@illinois.edu).
+BSCAMPP and SCAMPP were tested on **Python 3.8 to 3.12**. There are two ways to install:
+(1) with PyPI, or (2) from this GitHub repository. If you have any difficulties installing or running BSCAMPP or SCAMPP,
+please contact Eleanor Wedell (ewedell2@illinois.edu).
 
 ### External requirements
 * **Base placement method**:
-  EPA-ng and/or pplacer are requirements to run BSCAMPP since BSCAMPP will use them as the base phylogenetic placement methods.
-  By default, BSCAMPP will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
+  EPA-ng and/or pplacer are requirements since BSCAMPP and SCAMPP will use them as the base phylogenetic placement methods.
+  By default, the software will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
   We also included a compiled version of `pplacer` for the Linux system under `bscampp/tools`.
 * **C++ OpenMP**:
   We also use OpenMP to speed up the similarity comparison between sequences using C++, which is required to run the pre-compiled binaries.
 
 ### (1) Install with `pip`
-The easiest way to install BSCAMPP is to use `pip install`. This will also install all required Python packages.
+The easiest way to install BSCAMPP and SCAMPP is to use `pip install`. This will also install all required Python packages.
 
 ```bash
 # 1. install with pip (--user if no root access)
@@ -93,22 +96,29 @@ git clone https://github.com/ewedell/BSCAMPP.git
 # 2. Install all requirements
 pip install -r requirements.txt
 
-# 3. Execute BSCAMPP executable `run_bscampp.py`
+# 3. Execute BSCAMPP/SCAMPP executables
 python run_bscampp.py [-h]
+python run_scampp.py [-h]
 ```
 
 # Usage
 All parameter settings can be found by running
 ```bash
-run_bscampp.py -h
+run_bscampp.py -h   #OR
+run_scampp.py -h
 ```
 
 ### (1) Default case (`epa-ng`)
 ```bash
+# for BSCAMPP
 run_bscampp.py -i [raxml best model] -t [reference tree] -a [alignment file]
+
+# for SCAMPP
+run_scampp.py -i [raxml best model] -t [reference tree] -a [alignment file]
 ```
-To run BSCAMPP in its default mode with EPA-ng. `[alignment file]` should contain both sequences from the placement tree and
-the query sequences to be placed. This will create an output directory `bscampp_output` and write the placement results to
+BSCAMPP and SCAMPP in default mode run EPA-ng as the base method. `[alignment file]` should
+contain both sequences from the placement tree and the query sequences to be placed.
+This will create an output directory `bscampp_output` and write the placement results to
 `bscampp_output/bscampp_result.jplace`.
 
 ### (2) Separately giving query alignment and finer control of outputs
@@ -123,6 +133,11 @@ run_bscampp.py -i [raxml best model] -t [reference tree] -a [reference alignment
 run_bscampp.py -i [logfile from either RAxML/FastTree] -t [reference tree] \
     -a [reference alignment] -q [query sequence alignment] \
     --placement-method pplacer
+```
+### (4) Changing the number of votes to 15 for BSCAMPP
+```bash
+run_bscampp.py -i [raxml best model] -t [reference tree] -a [reference alignment] \
+    -q [query sequence alignment] -V 15
 ```
 
 ### More comprehensive usage
