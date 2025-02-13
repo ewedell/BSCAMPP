@@ -3,6 +3,8 @@
 is sufficient to run `pplacer` or `epa-ng`. Also this means that it is
 not needed to distinguish between nucleotide/protein sequences as long as
 the user provides the files correctly.
+2. Added a new test for using BSCAMPP on protein sequences, see
+`examples/run_bscampp_prot.sh`.
 
 # BSCAMPP v1.0.3
 1. Version bump to avoid the entire "pre-release" tag with beta versions.

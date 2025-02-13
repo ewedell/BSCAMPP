@@ -1,0 +1,91 @@
+
+RAxML-NG v. 1.2.2-master released on 30.04.2024 by The Exelixis Lab.
+Developed by: Alexey M. Kozlov and Alexandros Stamatakis.
+Contributors: Diego Darriba, Tomas Flouri, Benoit Morel, Sarah Lutteropp, Ben Bettisworth, Julia Haag, Anastasis Togkousidis.
+Latest version: https://github.com/amkozlov/raxml-ng
+Questions/problems/suggestions? Please visit: https://groups.google.com/forum/#!forum/raxml
+
+System: 11th Gen Intel(R) Core(TM) i5-11600K @ 3.90GHz, 6 cores, 31 GB RAM
+
+RAxML-NG was called at 12-Feb-2025 17:49:11 as follows:
+
+raxml-ng --evaluate --msa true.fasta --model LG+G --tree true.resolved.tt --brlen scaled --redo --force perf_threads --threads 12
+
+Analysis options:
+  run mode: Evaluate tree likelihood
+  start tree(s): user
+  random seed: 1739404151
+  tip-inner: OFF
+  pattern compression: ON
+  per-rate scalers: OFF
+  site repeats: ON
+  logLH epsilon: general: 0.100000, brlen-triplet: 1000.000000
+  branch lengths: proportional (ML estimate, algorithm: NR-FAST)
+  SIMD kernels: AVX2
+  parallelization: coarse-grained (auto), PTHREADS (12 threads), thread pinning: OFF
+
+WARNING: Running in REDO mode: existing checkpoints are ignored, and all result files will be overwritten!
+
+WARNING: Running in FORCE mode: some safety checks are disabled!
+
+[00:00:00] Reading alignment from file: true.fasta
+[00:00:00] Loaded alignment with 561 taxa and 490 sites
+
+Alignment comprises 1 partitions and 449 patterns
+
+Partition 0: noname
+Model: LG+G4m
+Alignment sites / patterns: 490 / 449
+Gaps: 33.71 %
+Invariant sites: 17.76 %
+
+
+NOTE: Binary MSA file created: true.fasta.raxml.rba
+
+Parallelization scheme autoconfig: 1 worker(s) x 12 thread(s)
+
+[00:00:00] Loading user starting tree(s) from: true.resolved.tt
+Parallel reduction/worker buffer size: 1 KB  / 0 KB
+
+[00:00:00] Data distribution: max. partitions/sites/weight per thread: 1 / 38 / 3040
+[00:00:00] Data distribution: max. searches per worker: 1
+
+Evaluating 1 trees
+
+[00:00:00] Tree #1, initial LogLikelihood: -125612.809999
+
+[00:00:00 -125612.809999] Initial branch length optimization
+[00:00:00 -112145.089465] Model parameter optimization (eps = 0.100000)
+
+[00:00:02] Tree #1, final logLikelihood: -112062.481609
+
+
+Optimized model parameters:
+
+   Partition 0: noname
+   Rate heterogeneity: GAMMA (4 cats, mean),  alpha: 0.792681 (ML),  weights&rates: (0.250000,0.094000) (0.250000,0.404171) (0.250000,0.954906) (0.250000,2.546923) 
+   Base frequencies (model): 0.079066 0.055941 0.041977 0.053052 0.012937 0.040767 0.071586 0.057337 0.022355 0.062157 0.099081 0.064600 0.022951 0.042302 0.044040 0.061197 0.053287 0.012066 0.034155 0.069147 
+   Substitution rates (model): 0.425093 0.276818 0.395144 2.489084 0.969894 1.038545 2.066040 0.358858 0.149830 0.395337 0.536518 1.124035 0.253701 1.177651 4.727182 2.139501 0.180717 0.218959 2.547870 0.751878 0.123954 0.534551 2.807908 0.363970 0.390192 2.426601 0.126991 0.301848 6.326067 0.484133 0.052722 0.332533 0.858151 0.578987 0.593607 0.314440 0.170887 5.076149 0.528768 1.695752 0.541712 1.437645 4.509238 0.191503 0.068427 2.145078 0.371004 0.089525 0.161787 4.008358 2.000679 0.045376 0.612025 0.083688 0.062556 0.523386 5.243870 0.844926 0.927114 0.010690 0.015076 0.282959 0.025548 0.017416 0.394456 1.240275 0.425860 0.029890 0.135107 0.037967 0.084808 0.003499 0.569265 0.640543 0.320627 0.594007 0.013266 0.893680 1.105251 0.075382 2.784478 1.143480 0.670128 1.165532 1.959291 4.128591 0.267959 4.813505 0.072854 0.582457 3.234294 1.672569 0.035855 0.624294 1.223828 1.080136 0.236199 0.257336 0.210332 0.348847 0.423881 0.044265 0.069673 1.807177 0.173735 0.018811 0.419409 0.611973 0.604545 0.077852 0.120037 0.245034 0.311484 0.008705 0.044261 0.296636 0.139538 0.089586 0.196961 1.739990 0.129836 0.268491 0.054679 0.076701 0.108882 0.366317 0.697264 0.442472 0.682139 0.508851 0.990012 0.584262 0.597054 5.306834 0.119013 4.145067 0.159069 4.273607 1.112727 0.078281 0.064105 1.033739 0.111660 0.232523 10.649107 0.137500 6.312358 2.592692 0.249060 0.182287 0.302936 0.619632 0.299648 1.702745 0.656604 0.023918 0.390322 0.748683 1.136863 0.049906 0.131932 0.185202 1.798853 0.099849 0.346960 2.020366 0.696175 0.481306 1.898718 0.094464 0.361819 0.165001 2.457121 7.803902 0.654683 1.338132 0.571468 0.095131 0.089613 0.296501 6.472279 0.248862 0.400547 0.098369 0.140825 0.245841 2.188158 3.151815 0.189510 0.249313 
+
+
+Final LogLikelihood: -112062.481609
+
+AIC score: 226364.963217 / AICc score: 2737404.963217 / BIC score: 231062.697255
+Free parameters (model + branch lengths): 1120
+
+WARNING: Number of free parameters (K=1120) is larger than alignment size (n=490).
+         This might lead to overfitting and compromise tree inference results!
+
+
+WARNING: Best ML tree contains 61 near-zero branches!
+
+Best ML tree with collapsed near-zero branches saved to: /home/chengzes/Desktop/Research/softwares/BSCAMPP/examples/tmp/1GADBL_100/model/true.fasta.raxml.bestTreeCollapsed
+Best ML tree saved to: /home/chengzes/Desktop/Research/softwares/BSCAMPP/examples/tmp/1GADBL_100/model/true.fasta.raxml.bestTree
+Optimized model saved to: /home/chengzes/Desktop/Research/softwares/BSCAMPP/examples/tmp/1GADBL_100/model/true.fasta.raxml.bestModel
+
+Execution log saved to: /home/chengzes/Desktop/Research/softwares/BSCAMPP/examples/tmp/1GADBL_100/model/true.fasta.raxml.log
+
+Analysis started: 12-Feb-2025 17:49:11 / finished: 12-Feb-2025 17:49:13
+
+Elapsed time: 2.575 seconds
+
