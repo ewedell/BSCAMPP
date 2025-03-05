@@ -107,7 +107,12 @@ def read_data(aln):
     
     """
 
-    f = open(aln)
+    # determine the file type, whether we have a .gz/.gzip file
+    suffix = aln.split('.')[-1]
+    if suffix in ['gz', 'gzip']:
+        f = gzip.open(aln, 'rt')
+    else:
+        f = open(aln)
     result = dict()
 
     taxa = ""

@@ -1,5 +1,6 @@
 __pycache__
 bscampp_output
+scampp_output
 examples/tmp.sh
 bscampp/home.path
 bscampp/tools/hamming_distance/CMakeFiles/

@@ -257,13 +257,14 @@ def _init_parser(default_outdir="bscampp_output",
     basic_group.add_argument("-a", "--alignment", "--aln-path", type=str,
                   dest="aln_path",
                   help=("Path for reference sequence alignment in "
-                  "FASTA format. Optionally with query sequences. "
+                  "FASTA format (can be a .gz file). "
+                  "Optionally with query sequences. "
                   "Query alignment can be specified with --qaln-path"), 
                   required=required, default=None)
     basic_group.add_argument("-q", "--qalignment", "--qaln-path", type=str,
                   dest="qaln_path",
                   help=("Optionally provide path to query sequence alignment "
-                  "in FASTA format. Default: None"),
+                  "in FASTA format (can be a .gz file). Default: None"),
                   required=False, default=None)
     #basic_group.add_argument("--molecule", type=str,
     #              choices=['nucl', 'nucleotide', 'prot', 'protein'],

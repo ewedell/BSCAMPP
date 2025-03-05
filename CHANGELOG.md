@@ -1,3 +1,7 @@
+# BSCAMPP v1.0.4
+1. Supported .gz format input files for alignment.
+2. Included all other changes made in v1.0.4a.
+
 # BSCAMPP v1.0.4a
 1. Removed redundant parameter `--model` since the user-provided info file
 is sufficient to run `pplacer` or `epa-ng`. Also this means that it is

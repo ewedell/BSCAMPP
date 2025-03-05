@@ -4,8 +4,8 @@ time=/usr/bin/time
 
 export BSCAMPP_LOGGING_LEVEL=debug
 
-queryalnpath=data/query100.fa
-backbonealnpath=data/ref10000.fa
+queryalnpath=data/query100.fa.gz
+backbonealnpath=data/ref10000.fa.gz
 backbonetreepath=data/ref10000.tre
 bin=../run_bscampp.py
 t=16
