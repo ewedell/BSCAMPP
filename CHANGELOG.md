@@ -1,3 +1,8 @@
+# BSCAMPP v1.0.5a
+1. Changed from using original sequence names from query input to using
+pseudo names (indexed from 1 to N, N the number of queries). This is to prevent
+issues with nontypical characters in sequence names, such as ":".
+
 # BSCAMPP v1.0.4
 1. Supported .gz format input files for alignment.
 2. Included all other changes made in v1.0.4a.

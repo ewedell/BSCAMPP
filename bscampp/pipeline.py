@@ -48,8 +48,8 @@ def bscampp_pipeline(*args, **kwargs):
 
     # (1) read in tree, alignment, and separate reference sequences from
     # query sequences
-    tree, leaf_dict, aln_path, aln, qaln_path, qaln = readData(workdir,
-            dry_run=dry_run)
+    tree, leaf_dict, aln_path, aln, qaln_path, qaln, qname_map, qname_map_rev \
+            = readData(workdir, dry_run=dry_run)
 
     # (2) compute closest leaves for all query sequences
     query_votes_dict, query_top_vote_dict = getClosestLeaves(
@@ -136,8 +136,9 @@ def scampp_pipeline(*args, **kwargs):
 
     # (4) perform placement for each subtree
     output_jplace = placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict,
-            placed_query_list, aln, qaln, cmdline_args, workdir, pool, lock,
-            dry_run=dry_run)
+            placed_query_list, aln, qaln, cmdline_args, workdir,
+            qname_map, qname_map_rev,
+            pool, lock, dry_run=dry_run)
 
     # (5) write the output jplace to local
     writeOutputJplace(output_jplace, dry_run=dry_run)

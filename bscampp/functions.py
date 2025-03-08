@@ -56,9 +56,22 @@ def readData(workdir, dry_run=False):
     aln_path = os.path.join(workdir, 'aln.fa')
     write_fasta(aln_path, ref_dict)
 
+    # Added on 3.8.2025 by Chengze Shen
+    #   - to ensure that any characters from the query has correct names
+    #     (e.g., having ":" can cause trouble), have a qname_map that maps
+    #     each taxon name to an idx
+    qidx = 1
+    qname_map = dict()
+    qname_map_rev = dict()
+    for name in q_dict.keys():
+        cvt = str(qidx).zfill(16)   # 16 digits
+        qname_map[name] = cvt
+        qname_map[cvt] = name
+
     t1 = time.perf_counter()
     _LOG.info('Time to read in input data: {} seconds'.format(t1 - t0))
-    return tree, leaf_dict, aln_path, ref_dict, qaln_path, q_dict
+    return tree, leaf_dict, aln_path, ref_dict, qaln_path, q_dict, \
+            qname_map, qname_map_rev
 
 '''
 Function to get the closest leaf for each query sequence based on Hamming
@@ -294,7 +307,8 @@ def placeOneSubtree():
 Function to perform placement of queries for each subtree
 '''
 def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
-        aln, qaln, cmdline_args, workdir, pool, lock, dry_run=False):
+        aln, qaln, cmdline_args, workdir, qname_map, qname_map_rev, 
+        pool, lock, dry_run=False):
     t0 = time.perf_counter()
     _LOG.info('Performing placement on each subtree...')
 
@@ -336,7 +350,10 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         if '' in tmp_leaf_dict:
             del tmp_leaf_dict['']
         tmp_ref_dict = {label : aln[label] for label in tmp_leaf_dict.keys()}
-        tmp_q_dict = {name : qaln[name] for name in query_list}
+        # Changed @ 3.8.2025 by Chengze Shen
+        #   - wrote converted name for query sequences and convert them
+        #   - back when placements are done
+        tmp_q_dict = {name : qaln[qname_map[name]] for name in query_list}
         write_fasta(tmp_aln, tmp_ref_dict)
         write_fasta(tmp_qaln, tmp_q_dict)
 
@@ -395,8 +412,12 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
             field_to_idx = {field: i for i, field in enumerate(fields)}
 
             for tmp_place in place_json["placements"]:
-                #print(tmp_place)
-                placed_query_list.append(tmp_place[tgt][0])
+                # convert qname back using qname_map_rev
+                qname = qname_map_rev[tmp_place[tgt][0]]
+                tmp_place[tgt][0] = qname
+                placed_query_list.append(qname)
+
+                #placed_query_list.append(tmp_place[tgt][0])
                 for i in range(len(tmp_place["p"])):
                     edge_num = tmp_place["p"][i][
                             field_to_idx['edge_num']]
