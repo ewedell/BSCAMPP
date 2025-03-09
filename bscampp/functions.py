@@ -67,6 +67,7 @@ def ensureBinaryExecutable(binpath):
             pass
         else:
             _LOG.warning(f"{binpath} return code is {p.returncode}!")
+            b_recompile = True
 
     if b_recompile:
         recompileBinariesFromDir(dir)
