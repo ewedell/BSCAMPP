@@ -64,8 +64,9 @@ def bscampp_pipeline(*args, **kwargs):
 
     # (4) perform placement for each subtree
     output_jplace = placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict,
-            placed_query_list, aln, qaln, cmdline_args, workdir, pool, lock,
-            dry_run=dry_run)
+            placed_query_list, aln, qaln, cmdline_args, workdir,
+            qname_map, qname_map_rev,
+            pool, lock, dry_run=dry_run)
 
     # (5) write the output jplace to local
     writeOutputJplace(output_jplace, dry_run=dry_run)

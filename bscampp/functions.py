@@ -66,7 +66,8 @@ def readData(workdir, dry_run=False):
     for name in q_dict.keys():
         cvt = str(qidx).zfill(16)   # 16 digits
         qname_map[name] = cvt
-        qname_map[cvt] = name
+        qname_map_rev[cvt] = name
+        qidx += 1
 
     t1 = time.perf_counter()
     _LOG.info('Time to read in input data: {} seconds'.format(t1 - t0))
@@ -353,7 +354,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         # Changed @ 3.8.2025 by Chengze Shen
         #   - wrote converted name for query sequences and convert them
         #   - back when placements are done
-        tmp_q_dict = {name : qaln[qname_map[name]] for name in query_list}
+        tmp_q_dict = {qname_map[name] : qaln[name] for name in query_list}
         write_fasta(tmp_aln, tmp_ref_dict)
         write_fasta(tmp_qaln, tmp_q_dict)
 
