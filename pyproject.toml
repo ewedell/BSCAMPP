@@ -11,9 +11,10 @@ dynamic = ["version", "dependencies"]
 description = "BSCAMPP and SCAMPP - Scalable Phylogenetic Placement Tools"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
-        {name = "Eleanor Wedell", email = "ewedell2@illinois.edu"},
-        {name = "Chengze Shen", email = "chengze5@illinois.edu"}
+        { name = "Eleanor Wedell", email = "ewedell2@illinois.edu" },
+        { name = "Chengze Shen", email = "chengze5@illinois.edu" },
         ]
+homepage = "https://github.com/ewedell/BSCAMPP"
 license = {file = "LICENSE"}
 requires-python = ">=3.7"
 classifiers = [
