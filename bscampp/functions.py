@@ -22,7 +22,7 @@ def readData(workdir, dry_run=False):
     _LOG.info('Reading in input data...')
 
     if dry_run:
-        return None, dict(), '', dict(), '', dict()
+        return None, dict(), '', dict(), '', dict(), dict(), dict()
 
     # (1) load reference tree
     tree = treeswift.read_tree_newick(Configs.tree_path)
