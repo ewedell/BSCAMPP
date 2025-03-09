@@ -112,7 +112,7 @@ class Job(object):
                 else:
                     _LOG.error(error_msg + '\nSTDOUT: ' + stdout +
                             '\nSTDERR: ' + stderr + logpath)
-                exit(1)
+                exit(self.returncode)
         except Exception:
             log_exception(_LOG)
 
@@ -122,6 +122,18 @@ class Job(object):
     def get_invocation(self):
         raise NotImplementedError(
             'get_invocation() should be implemented by subclasses.')
+
+'''
+Generic job that runs the given command, represented as a list of strings
+'''
+class GenericJob(Job):
+    def __init__(self, cmd=[], job_type='external'):
+        Job.__init__(self)
+        self.job_type = job_type
+        self.cmd = cmd
+
+    def get_invocation(self):
+        return self.cmd, None
 
 '''
 A EPA-ng job that runs EPA-ng with given parameters

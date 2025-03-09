@@ -1,3 +1,7 @@
+# BSCAMPP v1.0.6
+1. Implemented functionality to recompile C++ codes locally so that dynamic
+libraries are referred to correctly. 
+
 # BSCAMPP v1.0.5
 1. Changed from using original sequence names from query input to using
 pseudo names (indexed from 1 to N, N the number of queries). This is to prevent

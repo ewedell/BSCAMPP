@@ -1,16 +1,78 @@
 import json, time, os, sys
 import treeswift
 from collections import defaultdict, Counter
+import subprocess
 
 from bscampp import get_logger, log_exception
 from bscampp.configs import Configs
-from bscampp.jobs import EPAngJob, TaxtasticJob, PplacerTaxtasticJob
+from bscampp.jobs import GenericJob, EPAngJob, TaxtasticJob, PplacerTaxtasticJob
 from bscampp.utils import write_fasta
 import bscampp.utils as utils
 
 import concurrent.futures
 
 _LOG = get_logger(__name__)
+
+############################# helper functions ################################
+'''
+Function to recompile binaries from the given directory.
+Assumption, the directory contains a CMakeLists.txt file
+'''
+def recompileBinariesFromDir(dir):
+    _LOG.warning(f"Recompiling binaries with cmake/make at {dir}")
+
+    # need to recompile the binaries
+    cmake_p = subprocess.Popen(['cmake', dir],
+            cwd=dir, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, text=True)
+    cmake_stdout, cmake_stderr = cmake_p.communicate()
+
+    if cmake_p.returncode != 0:
+        _LOG.error("cmake failed!")
+        exit(cmake_p.returncode)
+    else:
+        _LOG.warning("cmake succeeded!")
+
+    # run make
+    make_p = subprocess.Popen(['make'],
+            cwd=dir, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, text=True)
+    make_stdout, make_stderr = make_p.communicate()
+    
+    if make_p.returncode != 0:
+        _LOG.error(f"make failed!")
+        exit(make_p.returncode)
+    else:
+        _LOG.warning("make succeeded!")
+    _LOG.warning(f"Successfully recompiled binaries at {dir}!")
+
+'''
+Function to check hamming/fragment_hamming/homology binaries are executable, 
+since they were compiled using dynamic library
+'''
+def ensureBinaryExecutable(binpath):
+    dir = os.path.dirname(binpath)
+
+    # binpath does not exist
+    b_recompile = False
+    if not os.path.exists(binpath):
+        _LOG.warning(f"{binpath} does not exist!")
+        b_recompile = True
+    else:
+        p = subprocess.Popen([binpath], stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+        # 255 or -1 indicates that the binaries work
+        if p.returncode == 255 or p.returncode == -1:
+            pass
+        else:
+            _LOG.warning(f"{binpath} return code is {p.returncode}!")
+
+    if b_recompile:
+        recompileBinariesFromDir(dir)
+    return
+
+########################## end of helper functions ############################
 
 '''
 Function to read in the placement tree and alignment.
@@ -94,18 +156,29 @@ def getClosestLeaves(aln_path, qaln_path, aln, qaln, workdir, dry_run=False):
     if Configs.subtreetype == "h":
         Configs.votes = Configs.subtreesize
 
-    cmd = []
     if Configs.similarityflag:
-        cmd.append(os.path.join(Configs.hamming_distance_dir, 'homology'))
+        job_type = 'homology'
     else:
-        if Configs.fragmentflag == False:
-            cmd.append(os.path.join(Configs.hamming_distance_dir, 'hamming'))
+        if Configs.fragmentflag:
+            job_type = 'fragment_hamming'
         else: 
-            cmd.append(os.path.join(
-                Configs.hamming_distance_dir, 'fragment_hamming'))
+            job_type = 'hamming'
+    binpath = os.path.join(Configs.hamming_distance_dir, job_type)
+    cmd = [binpath]
+
+    # Added @ 3.9.2025 by Chengze Shen
+    #   - check if binpath is executable, since the compiled files use dynamic 
+    #     libraries.
+    #     If works: should have return code 255
+    #     If not: should have return code 1,
+    #             recompile the binaries using cmake and make
+    ensureBinaryExecutable(binpath)
+
     cmd.extend([aln_path, str(len(aln)), qaln_path, str(len(qaln)),
         tmp_output, str(Configs.votes)])
-    os.system(' '.join(cmd))
+    job = GenericJob(cmd=cmd, job_type=job_type)
+    _ = job.run()
+    #os.system(' '.join(cmd))
 
     # process closest leaves 
     unusable_queries = set()
@@ -504,6 +577,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
     t1 = time.perf_counter()
     _LOG.info('Time to place queries to subtrees: {} seconds'.format(t1 - t0))
     return jplace
+
 
 '''
 Function to write a given jplace object to local output
