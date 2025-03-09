@@ -110,17 +110,6 @@ def readData(workdir, dry_run=False):
         aln_dict = utils.read_data(Configs.aln_path)
         ref_dict, q_dict = utils.seperate(aln_dict, leaf_dict)
 
-    # after separating queries from the reference alignment, write
-    # them to to TEMP/
-    # Updated on 3.5.2025 by Chengze Shen
-    #   - regardless of the input choices, write a copy of both reference
-    #     and query alignment to the workdir
-    qaln_path = os.path.join(workdir, 'qaln.fa')
-    write_fasta(qaln_path, q_dict)
-    
-    aln_path = os.path.join(workdir, 'aln.fa')
-    write_fasta(aln_path, ref_dict)
-
     # Added on 3.8.2025 by Chengze Shen
     #   - to ensure that any characters from the query has correct names
     #     (e.g., having ":" can cause trouble), have a qname_map that maps
@@ -133,6 +122,22 @@ def readData(workdir, dry_run=False):
         qname_map[name] = cvt
         qname_map_rev[cvt] = name
         qidx += 1
+    # modify q_dict as well
+    for name, cvt in qname_map.items():
+        q_dict[cvt] = q_dict[name]
+        q_dict.pop(name)
+
+    # after separating queries from the reference alignment, write
+    # them to to TEMP/
+    # Updated on 3.5.2025 by Chengze Shen
+    #   - regardless of the input choices, write a copy of both reference
+    #     and query alignment to the workdir
+    qaln_path = os.path.join(workdir, 'qaln.fa')
+    write_fasta(qaln_path, q_dict)
+    
+    aln_path = os.path.join(workdir, 'aln.fa')
+    write_fasta(aln_path, ref_dict)
+
 
     t1 = time.perf_counter()
     _LOG.info('Time to read in input data: {} seconds'.format(t1 - t0))
@@ -440,10 +445,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         if '' in tmp_leaf_dict:
             del tmp_leaf_dict['']
         tmp_ref_dict = {label : aln[label] for label in tmp_leaf_dict.keys()}
-        # Changed @ 3.8.2025 by Chengze Shen
-        #   - wrote converted name for query sequences and convert them
-        #   - back when placements are done
-        tmp_q_dict = {qname_map[name] : qaln[name] for name in query_list}
+        tmp_q_dict = {name : qaln[name] for name in query_list}
         write_fasta(tmp_aln, tmp_ref_dict)
         write_fasta(tmp_qaln, tmp_q_dict)
 
