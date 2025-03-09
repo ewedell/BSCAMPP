@@ -32,7 +32,9 @@ def bscampp_pipeline(*args, **kwargs):
 
     # initialize multiprocessing (if needed)
     _LOG.warning('Initializing ProcessPoolExecutor...')
-    pool = ProcessPoolExecutor(Configs.num_cpus, initializer=initial_pool,
+    # maximally concurrently run Configs.num_cpus // 2 jobs, each job
+    # can use 2 threads
+    pool = ProcessPoolExecutor(Configs.max_workers, initializer=initial_pool,
             initargs=(parser, cmdline_args,))
 
     # (0) temporary files wrote to here
@@ -122,8 +124,8 @@ def scampp_pipeline(*args, **kwargs):
 
     # (1) read in tree, alignment, and separate reference sequences from
     # query sequences
-    tree, leaf_dict, aln_path, aln, qaln_path, qaln = readData(workdir,
-            dry_run=dry_run)
+    tree, leaf_dict, aln_path, aln, qaln_path, qaln, qname_map, qname_map_rev \
+            = readData(workdir, dry_run=dry_run)
 
     # (2) compute closest leaves for all query sequences
     query_votes_dict, query_top_vote_dict = getClosestLeaves(
@@ -283,6 +285,9 @@ def _init_parser(default_outdir="bscampp_output",
                   dest="num_cpus",
                   help="Number of cores for parallelization, default: -1 (all)",
                   required=False, default=-1)
+    basic_group.add_argument("--cpus-per-job", type=int,
+                  help="Number of cores to use for each job, default: 2",
+                  required=False, default=2)
 
     # advanced parameter settings
     advance_group = parser.add_argument_group(

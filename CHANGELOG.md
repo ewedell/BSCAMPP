@@ -1,7 +1,11 @@
-# BSCAMPP v1.0.5a
+# BSCAMPP v1.0.5
 1. Changed from using original sequence names from query input to using
 pseudo names (indexed from 1 to N, N the number of queries). This is to prevent
 issues with nontypical characters in sequence names, such as ":".
+2. Added better parallelization for the placement phase. Now jobs can run
+in parallel to fully take advantage of more cores. By default, each job can
+use 2 cores (controlled by `--cpus-per-job`). The number of workers
+that can run in parallel is determined by `max(1, num_cpus // cpus_per_job)`.
 
 # BSCAMPP v1.0.4
 1. Supported .gz format input files for alignment.

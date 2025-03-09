@@ -34,6 +34,9 @@ class Configs:
     keeptemp = False        # whether to keep all temporary files
     verbose = 'INFO'        # default verbose level to print
     num_cpus = 1            # number of cores to use for parallelization
+    cpus_per_job = 2        # number of cores to use per job
+    max_workers = 1         # max_workers for ProcessPoolExecutor
+                            # ... = max(1, num_cpus // cpus_per_job)
 
     # binaries
     pplacer_path = None
@@ -157,24 +160,13 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
     if Configs.outname.split('.')[-1].lower() != 'jplace':
         Configs.outname += '.jplace'
 
-    ## modify model to use based on the datatype
-    #if Configs.molecule is None:
-    #    Configs.molecule = inferDataType(Configs.aln_path)
-    ## nucleotide --> GTR
-    #if Configs.molecule.startswith('nucl'):
-    #    Configs.model = 'GTR'
-    ## protein --> LG
-    #elif Configs.molecule.startswith('prot'):
-    #    Configs.model = 'LG'
-    ## specified by users, override default
-    #if args.model is not None:
-    #    Configs.model = args.model
-
     # modify num_cpus if it is the default value
     if Configs.num_cpus > 0:
         Configs.num_cpus = min(os.cpu_count(), Configs.num_cpus)
     else:
         Configs.num_cpus = os.cpu_count()
+    # compute max_workers based on num_cpus and cpus_per_job
+    Configs.max_workers = max(1, Configs.num_cpus // Configs.cpus_per_job)
 
     # sanity check for existence of base placement binary path
     if Configs.placement_method == 'epa-ng':

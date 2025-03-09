@@ -178,6 +178,8 @@ run_bscampp.py -i [raxml best model] -t [reference tree] -a [reference alignment
 >                         Output file name. Default: bscampp_result.jplace
 >   --threads NUM_CPUS, --num-cpus NUM_CPUS
 >                         Number of cores for parallelization, default: -1 (all)
+>   --cpus-per-job CPUS_PER_JOB
+>                         Number of cores to use for each job, default: 2
 > 
 > ADVANCE PARAMETERS:
 >   These parameters control how BSCAMPP and SCAMPP are run. The default values are set based on experiments.

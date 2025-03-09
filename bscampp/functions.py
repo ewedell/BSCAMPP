@@ -8,6 +8,8 @@ from bscampp.jobs import EPAngJob, TaxtasticJob, PplacerTaxtasticJob
 from bscampp.utils import write_fasta
 import bscampp.utils as utils
 
+import concurrent.futures
+
 _LOG = get_logger(__name__)
 
 '''
@@ -299,10 +301,23 @@ def buildQuerySubtrees(query_votes_dict, query_top_vote_dict,
 '''
 Helper function to run a single placement task. Designed to use with
 multiprocessing
+Input: job object
+Return: outpath from job.run() 
 '''
-def placeOneSubtree():
-    # TODO
-    pass
+def placeOneSubtree(*jobs,
+        subtree_id=0, num_assigned_queries=-1, outpath=None, logging=None):
+    job_type = None
+    # record the last job_type and _outpath, which will be for the placement
+    # job
+    for job in jobs:
+        job_type = job.job_type
+        # run the job
+        _outpath = job.run(logging=logging)
+    
+    # move output file for EPA-ng output
+    if job_type == 'epa-ng': 
+        os.system('mv {} {}'.format(_outpath, outpath))
+    return subtree_id, num_assigned_queries, outpath
 
 '''
 Function to perform placement of queries for each subtree
@@ -325,10 +340,10 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
     # go over the dictionary of subtrees and their assigned queries
     # perform placement using either EPA-ng or pplacer
     final_subtree_count, total_subtrees_examined = 0, 0
+    futures = []
+    _LOG.info("Submitting jobs for subtree placement...")
     for subtree, query_list in new_subtree_dict.items():
         total_subtrees_examined += 1
-        _LOG.info('- Subtree {}/{} with {} queries'.format(
-            total_subtrees_examined, len(new_subtree_dict), len(query_list)))
 
         # empty subtree, continue
         if len(query_list) == 0:
@@ -365,15 +380,16 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
 
         # 1.27.2025 - Chengze Shen
         # choose the placement method to run
+        jobs = []
         if Configs.placement_method == 'epa-ng':
             job = EPAngJob(path=Configs.epang_path,
                     info_path=Configs.info_path, tree_path=tmp_tree,
-                    #molecule=Configs.molecule, model=Configs.model,
                     aln_path=tmp_aln, qaln_path=tmp_qaln,
                     outdir=subtree_dir, num_cpus=Configs.num_cpus)
-            # for EPA-ng, ensure that outpath name is changed to the one we want
-            _outpath = job.run(logging=f'subtree_{final_subtree_count}')
-            os.system('mv {} {}'.format(_outpath, tmp_output))
+            jobs.append(job)
+            ## for EPA-ng, ensure that outpath name is changed to the one we want
+            #_outpath = job.run(logging=f'subtree_{final_subtree_count}')
+            #os.system('mv {} {}'.format(_outpath, tmp_output))
         elif Configs.placement_method == 'pplacer':
             # build ref_pkg with info and tmp_tree and tmp_aln
             refpkg_dir = os.path.join(subtree_dir,
@@ -382,7 +398,8 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                     outdir=refpkg_dir, name=f'subtree_{final_subtree_count}',
                     aln_path=tmp_aln, tree_path=tmp_tree,
                     info_path=Configs.info_path)
-            _ = taxit_job.run()
+            jobs.append(taxit_job)
+            #_ = taxit_job.run()
 
             # run pplacer-taxtastic
             job = PplacerTaxtasticJob(path=Configs.pplacer_path,
@@ -390,10 +407,24 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                     #molecule=Configs.molecule, model=Configs.model,
                     outpath=tmp_output, num_cpus=Configs.num_cpus,
                     qaln_path=tmp_qaln)
-            tmp_output = job.run(logging=f'subtree_{final_subtree_count}')
+            #tmp_output = job.run(logging=f'subtree_{final_subtree_count}')
+            jobs.append(job)
         else:
             raise ValueError(
                     f"Placement method {Configs.placement_method} not recognized")
+        logging = f'subtree_{final_subtree_count}'
+        futures.append(pool.submit(placeOneSubtree, *jobs,
+            subtree_id=final_subtree_count,
+            num_assigned_queries=len(query_list),
+            outpath=tmp_output, logging=logging))
+        # increment final_subtree_count
+        final_subtree_count += 1
+
+    # deal with outputs
+    for future in concurrent.futures.as_completed(futures):
+        subtree_id, num_assigned_queries, tmp_output = future.result()
+        _LOG.info('- Subtree {}/{} with {} queries'.format(
+            subtree_id + 1, final_subtree_count, num_assigned_queries))
 
         # read in each placement result
         place_file = open(tmp_output, 'r')
@@ -459,8 +490,6 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
                             int(target_edge_nbr)
 
                 placements.append(tmp_place.copy())
-        # increment final_subtree_count
-        final_subtree_count += 1
         place_file.close()
 
     _LOG.info(f'Final number of subtrees used: {final_subtree_count}')
