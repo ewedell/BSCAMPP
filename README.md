@@ -1,8 +1,8 @@
 # BSCAMPP and SCAMPP - Two Scalable Phylogenetic Placement Methods and Frameworks
+[![PyPI - Version](https://img.shields.io/pypi/v/bscampp?color=orange)](https://pypi.org/project/bscampp/#history)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bscampp)](https://pypi.org/project/bscampp/)
-[![PyPI - Version](https://img.shields.io/pypi/v/bscampp?color=blue)](https://pypi.org/project/bscampp/#history)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/ewedell/BSCAMPP/python-package.yml?branch=main&label=build)](https://github.com/ewedell/BSCAMPP/)
-[![PyPI - License](https://img.shields.io/pypi/l/bscampp?color=blue)](https://github.com/ewedell/BSCAMPP/blob/main/LICENSE)
+[![PyPI - License](https://img.shields.io/pypi/l/bscampp?color=orange)](https://github.com/ewedell/BSCAMPP/blob/main/LICENSE)
 [![Changelog](https://img.shields.io/badge/CHANGELOG-grey)](https://github.com/ewedell/BSCAMPP/blob/main/CHANGELOG.md)
 
 **Table of Contents**
