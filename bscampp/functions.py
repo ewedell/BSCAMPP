@@ -11,6 +11,10 @@ import bscampp.utils as utils
 
 import concurrent.futures
 
+# suppress userwarning when doing subtree suppress_unifurcations
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 _LOG = get_logger(__name__)
 
 ############################# helper functions ################################
