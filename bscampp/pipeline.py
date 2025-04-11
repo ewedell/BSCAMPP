@@ -180,8 +180,6 @@ def clean_temp_files():
         _LOG.info(f'- Removed {temp}')
 
 def parseArguments(dry_run=False, method="BSCAMPP"):
-    global _root_dir, main_config_path
-
     default_outdir = f"{method.lower()}_output"
     default_outname = f"{method.lower()}_result"
 

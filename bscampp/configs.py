@@ -22,7 +22,6 @@ _LOG = get_logger(__name__)
 Configuration defined by users and by default values
 '''
 class Configs:
-    global _root_dir
 
     # basic input paths
     info_path = None        # info file for pplacer or EPA-ng
