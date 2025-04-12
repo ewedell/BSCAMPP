@@ -465,7 +465,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
             job = EPAngJob(path=Configs.epang_path,
                     info_path=Configs.info_path, tree_path=tmp_tree,
                     aln_path=tmp_aln, qaln_path=tmp_qaln,
-                    outdir=subtree_dir, num_cpus=Configs.num_cpus)
+                    outdir=subtree_dir, num_cpus=Configs.cpus_per_job)
             jobs.append(job)
             ## for EPA-ng, ensure that outpath name is changed to the one we want
             #_outpath = job.run(logging=f'subtree_{final_subtree_count}')
@@ -485,7 +485,7 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
             job = PplacerTaxtasticJob(path=Configs.pplacer_path,
                     refpkg_dir=refpkg_dir,
                     #molecule=Configs.molecule, model=Configs.model,
-                    outpath=tmp_output, num_cpus=Configs.num_cpus,
+                    outpath=tmp_output, num_cpus=Configs.cpus_per_job,
                     qaln_path=tmp_qaln)
             #tmp_output = job.run(logging=f'subtree_{final_subtree_count}')
             jobs.append(job)
@@ -525,8 +525,16 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
 
             for tmp_place in place_json["placements"]:
                 # convert qname back using qname_map_rev
-                qname = qname_map_rev[tmp_place[tgt][0]]
-                tmp_place[tgt][0] = qname
+                tmp_name = tmp_place[tgt][0]
+
+                # >EPA-ng: tgt=="n" --> qname is string
+                if isinstance(tmp_name, str):
+                    qname = qname_map_rev[tmp_name]
+                    tmp_place[tgt][0] = qname
+                # >pplacer: tgt=="nm" --> qname is a list of two fields
+                elif isinstance(tmp_name, list):
+                    qname = qname_map_rev[tmp_name[0]]
+                    tmp_place[tgt][0][0] = qname
                 placed_query_list.append(qname)
 
                 #placed_query_list.append(tmp_place[tgt][0])
