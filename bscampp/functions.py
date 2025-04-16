@@ -409,7 +409,8 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
         aln, qaln, cmdline_args, workdir, qname_map, qname_map_rev, 
         pool, lock, dry_run=False):
     t0 = time.perf_counter()
-    _LOG.info('Performing placement on each subtree...')
+    _LOG.info("Performing placement on each subtree with {}...".format(
+        Configs.placement_method))
 
     if dry_run:
         return dict()

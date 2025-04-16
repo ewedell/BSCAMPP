@@ -1,10 +1,12 @@
+# BSCAMPP v1.0.7
+1. Fixed subtree formatting with pplacer output and the final output formatting
+regarding the difference between "n" and "nm" in jplace.
+2. Added UserWarning suppression to suppress warnings during subtree unifurcation
+suppression.
+
 # BSCAMPP v1.0.6
 1. Implemented functionality to recompile C++ codes locally so that dynamic
 libraries are referred to correctly. 
-2. Added UserWarning suppression to suppress warnings during subtree unifurcation
-suppression.
-3. Fixed subtree formatting with pplacer output and the final output formatting
-regarding the difference between "n" and "nm" in jplace.
 
 # BSCAMPP v1.0.5
 1. Changed from using original sequence names from query input to using
