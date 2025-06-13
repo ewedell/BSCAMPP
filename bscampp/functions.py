@@ -33,6 +33,8 @@ def recompileBinariesFromDir(dir):
 
     if cmake_p.returncode != 0:
         _LOG.error("cmake failed!")
+        print("STDOUT:", cmake_stdout)
+        print("STDERR:", cmake_stderr)
         exit(cmake_p.returncode)
     else:
         _LOG.warning("cmake succeeded!")
