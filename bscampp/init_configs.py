@@ -71,11 +71,6 @@ def init_config_file(homepath, rerun=False, prioritize_user_software=True):
     cparser.set('basic', 'hamming_distance_dir',
             os.path.join(tools_dir, 'hamming_distance'))
     
-    # macOS TODO: need to recompile the binaries 
-    if 'macos' in platform_name.lower():
-        cparser.set('basic', 'hamming_distance_dir',
-                os.path.join(tools_dir, 'macOS', 'hamming_distance'))
-    
     # prioritize user's software
     if prioritize_user_software:
         print('Detecting existing software from user\'s environment...')
