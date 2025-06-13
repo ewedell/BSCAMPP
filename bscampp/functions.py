@@ -63,11 +63,23 @@ def ensureBinaryExecutable(binpath):
         _LOG.warning(f"{binpath} does not exist!")
         b_recompile = True
     else:
-        p = subprocess.Popen([binpath], stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
+        """
+            added @ 6.13.2025 by Chengze Shen
+            - try-catch OSError to indicate that the binary files
+            - are not executable on the current sytem and need to be
+            - recompiled
+        """
+        try:
+            p = subprocess.Popen([binpath], stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
+            returncode = p.returncode
+        except OSError as e:
+            # indicating we need to recompile: anything other than 255 or -1
+            returncode = 7
+
         # 255 or -1 indicates that the binaries work
-        if p.returncode == 255 or p.returncode == -1:
+        if returncode == 255 or returncode == -1:
             pass
         else:
             _LOG.warning(f"{binpath} return code is {p.returncode}!")
