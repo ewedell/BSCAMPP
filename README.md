@@ -53,8 +53,11 @@ please contact Eleanor Wedell (ewedell2@illinois.edu).
   EPA-ng and/or pplacer are requirements since BSCAMPP and SCAMPP will use them as the base phylogenetic placement methods.
   By default, the software will search for binary executables of `pplacer` and `epa-ng` in the user's environment when running for the first time.
   We also included a compiled version of `pplacer` for the Linux system under `bscampp/tools`.
-* **C++ OpenMP**:
-  We also use OpenMP to speed up the similarity comparison between sequences using C++, which is required to run the pre-compiled binaries.
+* **(macOS) EPA-ng and pplacer**:
+  For macOS systems, you need to have `EPA-ng` and/or `pplacer` installed in your environment.
+* **cmake and C++ OpenMP**:
+  We also use C++ with OpenMP to speed up the similarity comparison between sequences, which is required to run the pre-compiled binaries.
+  In the case of macOS systems, the software will automatically recompile the binaries using `cmake`, which is required to be installed.
 
 ### (1) Install with `pip`
 The easiest way to install BSCAMPP and SCAMPP is to use `pip install`. This will also install all required Python packages.
