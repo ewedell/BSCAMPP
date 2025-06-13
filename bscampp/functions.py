@@ -84,7 +84,7 @@ def ensureBinaryExecutable(binpath):
         if returncode == 255 or returncode == -1:
             pass
         else:
-            _LOG.warning(f"{binpath} return code is {p.returncode}!")
+            _LOG.warning(f"{binpath} return code is {returncode}!")
             b_recompile = True
 
     if b_recompile:
