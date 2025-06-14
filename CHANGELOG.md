@@ -1,7 +1,9 @@
-# BSCAMPP v1.0.8
+# BSCAMPP v1.0.8 (WIP)
 1. Fixed the path issue with recompiling binaries on macOS.
 2. Added `cmake`, `EPA-ng`, and `pplacer` to external requirements when on
 macOS systems.
+3. (TODO) Warn the user if the executables of `EPA-ng` and `pplacer` can not
+be executed, and exit the software in such cases.
 
 # BSCAMPP v1.0.7
 1. Fixed subtree formatting with pplacer output and the final output formatting
