@@ -539,18 +539,22 @@ def placeQueriesToSubtrees(tree, leaf_dict, new_subtree_dict, placed_query_list,
             field_to_idx = {field: i for i, field in enumerate(fields)}
 
             for tmp_place in place_json["placements"]:
-                # convert qname back using qname_map_rev
-                tmp_name = tmp_place[tgt][0]
+                # Fixed @ 7.7.2025 - Chengze Shen
+                #   - pplacer actually can report multiple items
+                #   - in the ["nm"] field.
+                for _idx in range(len(tmp_place[tgt])):
+                    # convert qname back using qname_map_rev
+                    tmp_name = tmp_place[tgt][_idx]
 
-                # >EPA-ng: tgt=="n" --> qname is string
-                if isinstance(tmp_name, str):
-                    qname = qname_map_rev[tmp_name]
-                    tmp_place[tgt][0] = qname
-                # >pplacer: tgt=="nm" --> qname is a list of two fields
-                elif isinstance(tmp_name, list):
-                    qname = qname_map_rev[tmp_name[0]]
-                    tmp_place[tgt][0][0] = qname
-                placed_query_list.append(qname)
+                    # >EPA-ng: tgt=="n" --> qname is string
+                    if isinstance(tmp_name, str):
+                        qname = qname_map_rev[tmp_name]
+                        tmp_place[tgt][_idx] = qname
+                    # >pplacer: tgt=="nm" --> qname is a list of two fields
+                    elif isinstance(tmp_name, list):
+                        qname = qname_map_rev[tmp_name[0]]
+                        tmp_place[tgt][_idx][0] = qname
+                    placed_query_list.append(qname)
 
                 #placed_query_list.append(tmp_place[tgt][0])
                 for i in range(len(tmp_place["p"])):

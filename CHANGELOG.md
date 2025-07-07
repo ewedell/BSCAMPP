@@ -1,9 +1,13 @@
-# BSCAMPP v1.0.8 (WIP)
+# BSCAMPP v1.0.8
 1. Fixed the path issue with recompiling binaries on macOS.
 2. Added `cmake`, `EPA-ng`, and `pplacer` to external requirements when on
 macOS systems.
-3. (TODO) Warn the user if the executables of `EPA-ng` and `pplacer` can not
-be executed, and exit the software in such cases.
+3. Fixed a bug that failed to recover input sequence names when using pplacer
+for placements. Each entry in pplacer may contain multiple query sequences,
+and previously only the sequence at index 0 is successfully recovered.
+3. Now BSCAMPP warns the user if the executables of `EPA-ng` and `pplacer`
+are not executable (e.g., `exec format error`), exits the software in
+such cases, and notifies the user on how to provide a working executable.
 
 # BSCAMPP v1.0.7
 1. Fixed subtree formatting with pplacer output and the final output formatting

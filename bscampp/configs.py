@@ -4,6 +4,8 @@ try:
 except ImportError:
     from ConfigParser import configparser
 from argparse import ArgumentParser, Namespace
+import subprocess
+
 from bscampp.init_configs import init_config_file
 from bscampp import get_logger, log_exception
 #from bscampp.utils import inferDataType
@@ -116,6 +118,24 @@ def _read_config_file(filename, cparser, opts,
             setattr(opts, section, section_name_space)
     return config_defaults
 
+# validate a given binary file is executable
+def validate_binary_executable(name, path):
+    # 1. make sure path exists
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"{path} is not found!")
+
+    # 2. make sure path is executable with no IO error
+    try:
+        p = subprocess.Popen([path], text=True, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+        _, __ = p.communicate()
+    except OSError:
+        raise AssertionError(' '.join([
+            f"{path} is not executable! Please do the followings:",
+            f"\n\n\t1. obtain a working executable for the software: {name}",
+            f"\n\t2. modify {main_config_path} to replace the old executable path\n",
+            ]))
+
 '''
 Build Config class
 '''
@@ -169,6 +189,8 @@ def buildConfigs(parser, cmdline_args, child_process=False, rerun=False):
 
     # sanity check for existence of base placement binary path
     if Configs.placement_method == 'epa-ng':
-        assert os.path.exists(Configs.epang_path), 'epa-ng not detected!'
+        validate_binary_executable(Configs.placement_method, Configs.epang_path)
+        #assert os.path.exists(Configs.epang_path), 'epa-ng not detected!'
     elif Configs.placement_method == 'pplacer':
-        assert os.path.exists(Configs.pplacer_path), 'pplacer not detected!'
+        validate_binary_executable(Configs.placement_method, Configs.pplacer_path)
+        #assert os.path.exists(Configs.pplacer_path), 'pplacer not detected!'
